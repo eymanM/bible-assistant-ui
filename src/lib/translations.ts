@@ -80,7 +80,7 @@ export const translations = {
       payments: 'Payments',
       paymentsDesc: 'Integrated Stripe payment processing for credit management and premium features.',
       languageSupport: 'Language Support',
-      languageSupportDesc: 'The interface supports both English and Polish. Bible search results are currently available in English only.',
+      languageSupportDesc: 'The interface supports both English and Polish. Bible search results works best in English.',
       createdBy: 'Created by Mateusz • 2026'
     },
     history: {
@@ -169,7 +169,7 @@ export const translations = {
       payments: 'Płatności',
       paymentsDesc: 'Zintegrowane przetwarzanie płatności Stripe do zarządzania kredytami i funkcjami premium.',
       languageSupport: 'Wsparcie Językowe',
-      languageSupportDesc: 'Interfejs obsługuje zarówno angielski, jak i polski. Wyniki wyszukiwania w Biblii są obecnie dostępne tylko w języku angielskim.',
+      languageSupportDesc: 'Interfejs obsługuje zarówno angielski, jak i polski. Wyniki wyszukiwania w Biblii najlepiej działają w języku angielskim.',
       createdBy: 'Stworzony przez Mateusz • 2026'
     },
     history: {
