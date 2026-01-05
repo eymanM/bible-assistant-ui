@@ -24,4 +24,4 @@ dist-ssr
 *.sw?
 .env.*
 .next/*
-next-env.d.ts
+!next-env.d.ts

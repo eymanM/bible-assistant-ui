@@ -12,6 +12,8 @@ interface SearchBarProps {
 const SearchBar: React.FC<SearchBarProps> = ({ onSearch, disabled, showCreditsWarning = true, currentQuery }) => {
   const { t } = useLanguage();
   const [query, setQuery] = useState(currentQuery || '');
+  const [showLimitWarning, setShowLimitWarning] = useState(false);
+
 
   useEffect(() => {
     if (disabled) {
@@ -37,9 +39,14 @@ const SearchBar: React.FC<SearchBarProps> = ({ onSearch, disabled, showCreditsWa
         <input
           type="text"
           value={query}
-          onChange={(e) => setQuery(e.target.value)}
+          onChange={(e) => {
+            const val = e.target.value;
+            setQuery(val);
+            setShowLimitWarning(val.length >= 100);
+          }}
           onKeyDown={(e) => e.key === 'Enter' && handleSearch()}
           disabled={disabled}
+          maxLength={100}
           placeholder={disabled ? t.main.loginRequired : t.main.searchPlaceholder}
           className={`w-full px-6 py-5 pl-14 text-lg bg-white border-2 rounded-2xl transition-all duration-300 outline-none
             ${disabled 
@@ -68,7 +75,13 @@ const SearchBar: React.FC<SearchBarProps> = ({ onSearch, disabled, showCreditsWa
       
       {!disabled && showCreditsWarning && (
         <p className="text-xs text-slate-500 text-center mt-3">
-          {t.main.creditsOnlyFor}
+          {showLimitWarning ? (
+              <span className="text-red-500 font-medium animate-pulse">
+                {t.main.inputLimitReached}
+              </span>
+          ) : (
+             t.main.creditsOnlyFor
+          )}
         </p>
       )}
     </div>

@@ -44,7 +44,8 @@ export const translations = {
         "Fruit of the Spirit",
         "Paul's Missionary Journeys"
       ],
-      readyToSearch: 'Ready to search across scripture and commentary'
+      readyToSearch: 'Ready to search across scripture and commentary',
+      inputLimitReached: 'Character limit reached'
     },
     account: {
       loadingAccountData: 'Loading account data...',
@@ -133,7 +134,8 @@ export const translations = {
         "Owoce Ducha",
         "Podróże misyjne Pawła"
       ],
-      readyToSearch: 'Gotowy do wyszukiwania w Piśmie i komentarzach'
+      readyToSearch: 'Gotowy do wyszukiwania w Piśmie i komentarzach',
+      inputLimitReached: 'Osiągnięto limit znaków'
     },
     account: {
       loadingAccountData: 'Ładowanie danych konta...',
