@@ -11,7 +11,7 @@ import { useAuth } from '../lib/auth-context';
 import Link from 'next/link';
 
 const BibleApp: React.FC = () => {
-  const { query, settings, setSettings, results, loading, error, search, loadFromHistory, historyRefreshTrigger } = useBibleSearch();
+  const { query, setQuery, settings, setSettings, results, loading, error, search, loadFromHistory, historyRefreshTrigger } = useBibleSearch();
   const { user, logout } = useAuth();
   const { t, setLanguage } = useLanguage();
   const [isSidebarOpen, setIsSidebarOpen] = React.useState(false);
@@ -40,6 +40,7 @@ const BibleApp: React.FC = () => {
         refreshTrigger={historyRefreshTrigger}
         isOpen={isSidebarOpen}
         onClose={() => setIsSidebarOpen(false)}
+        onLanguageChange={() => setQuery('')}
       />
       
       <main className="flex-1 w-full max-w-[1600px] mx-auto min-w-0">

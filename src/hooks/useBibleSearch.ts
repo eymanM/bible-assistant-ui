@@ -240,6 +240,7 @@ export const useBibleSearch = () => {
 
   return {
     query,
+    setQuery,
     settings,
     setSettings,
     results,
