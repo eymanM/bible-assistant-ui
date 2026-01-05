@@ -41,6 +41,8 @@ const BibleApp: React.FC = () => {
         isOpen={isSidebarOpen}
         onClose={() => setIsSidebarOpen(false)}
         onLanguageChange={() => setQuery('')}
+        user={user}
+        onLogout={logout}
       />
       
       <main className="flex-1 w-full max-w-[1600px] mx-auto min-w-0">
@@ -74,25 +76,10 @@ const BibleApp: React.FC = () => {
                   {t.main.buyCredits}
                 </Link>
                 
-                <Link 
-                  href="/account"
-                  className="hidden md:block px-5 py-2 text-sm font-medium text-slate-700 bg-white border border-slate-200 rounded-full hover:bg-slate-50 transition-all shadow-sm focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-slate-500"
-                >
-                  {t.main.account}
-                </Link>
-                
-                <button
-                  onClick={logout}
-                  className="hidden md:block px-5 py-2 text-sm font-medium text-slate-700 bg-white border border-slate-200 rounded-full hover:bg-red-50 hover:text-red-600 hover:border-red-100 transition-all shadow-sm focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500"
-                >
-                  {t.main.logout}
-                </button>
                 
                 {/* Mobile User Menu (Simplified) */}
                 <div className="md:hidden flex items-center">
-                   <Link href="/account" className="p-2 text-slate-600">
-                     <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="lucide lucide-user"><path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
-                   </Link>
+                   {/* Mobile menu items are now in Sidebar */}
                 </div>
               </>
             ) : (
