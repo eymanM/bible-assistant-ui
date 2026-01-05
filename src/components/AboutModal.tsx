@@ -1,8 +1,9 @@
 'use client';
 
 import React from 'react';
-import { X, Code2, Server, Database, Shield, CreditCard } from 'lucide-react';
+import { X, Code2, Server, Database, Shield, CreditCard, Languages } from 'lucide-react';
 import { version } from '../../package.json';
+import { useLanguage } from '../lib/language-context';
 
 interface AboutModalProps {
   isOpen: boolean;
@@ -10,6 +11,8 @@ interface AboutModalProps {
 }
 
 export default function AboutModal({ isOpen, onClose }: AboutModalProps) {
+  const { t } = useLanguage();
+  
   if (!isOpen) return null;
 
   return (
@@ -18,7 +21,7 @@ export default function AboutModal({ isOpen, onClose }: AboutModalProps) {
         {/* Header */}
         <div className="bg-indigo-600 px-6 py-4 flex items-center justify-between">
           <h2 className="text-xl font-bold text-white flex items-center gap-2">
-            About Bible Assistant
+            {t.about.title}
             <span className="text-xs font-normal bg-indigo-500/50 px-2 py-0.5 rounded-full border border-indigo-400/30">v{version}</span>
           </h2>
           <button 
@@ -32,11 +35,10 @@ export default function AboutModal({ isOpen, onClose }: AboutModalProps) {
         {/* Content */}
         <div className="p-6 md:p-8 max-h-[80vh] overflow-y-auto">
           <p className="text-slate-600 mb-8 leading-relaxed">
-            Bible Assistant is an advanced AI-powered Bible study tool designed to provide deeper insights into scripture through modern technology. 
-            It combines traditional study methods with cutting-edge artificial intelligence to offer context, commentary, and semantic search capabilities.
+            {t.about.description}
           </p>
 
-          <h3 className="text-sm font-semibold text-slate-900 uppercase tracking-wider mb-4 border-b border-slate-100 pb-2">Technical Implementation</h3>
+          <h3 className="text-sm font-semibold text-slate-900 uppercase tracking-wider mb-4 border-b border-slate-100 pb-2">{t.about.technicalImplementation}</h3>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div className="p-4 rounded-xl bg-slate-50 border border-slate-100 hover:border-indigo-100 hover:shadow-sm transition-all">
@@ -44,9 +46,9 @@ export default function AboutModal({ isOpen, onClose }: AboutModalProps) {
                 <div className="p-2 bg-blue-100 text-blue-600 rounded-lg">
                   <Code2 size={18} />
                 </div>
-                <h4 className="font-semibold text-slate-800">Frontend</h4>
+                <h4 className="font-semibold text-slate-800">{t.about.frontend}</h4>
               </div>
-              <p className="text-xs text-slate-500">Built with <strong>Next.js 16</strong>, <strong>React 19</strong>, and <strong>TailwindCSS</strong> for a responsive, performant user interface.</p>
+              <p className="text-xs text-slate-500">{t.about.frontendDesc}</p>
             </div>
 
             <div className="p-4 rounded-xl bg-slate-50 border border-slate-100 hover:border-indigo-100 hover:shadow-sm transition-all">
@@ -54,9 +56,9 @@ export default function AboutModal({ isOpen, onClose }: AboutModalProps) {
                 <div className="p-2 bg-orange-100 text-orange-600 rounded-lg">
                   <Server size={18} />
                 </div>
-                <h4 className="font-semibold text-slate-800">Backend & AI</h4>
+                <h4 className="font-semibold text-slate-800">{t.about.backendAI}</h4>
               </div>
-              <p className="text-xs text-slate-500">Python server powering advanced vector search and LLM integration for semantic understanding.</p>
+              <p className="text-xs text-slate-500">{t.about.backendDesc}</p>
             </div>
 
             <div className="p-4 rounded-xl bg-slate-50 border border-slate-100 hover:border-indigo-100 hover:shadow-sm transition-all">
@@ -64,9 +66,9 @@ export default function AboutModal({ isOpen, onClose }: AboutModalProps) {
                 <div className="p-2 bg-green-100 text-green-600 rounded-lg">
                    <Shield size={18} />
                 </div>
-                <h4 className="font-semibold text-slate-800">Auth & Cloud</h4>
+                <h4 className="font-semibold text-slate-800">{t.about.authCloud}</h4>
               </div>
-              <p className="text-xs text-slate-500">Secure authentication via <strong>AWS Cognito</strong> and cloud infrastructure on <strong>AWS</strong>.</p>
+              <p className="text-xs text-slate-500">{t.about.authDesc}</p>
             </div>
              
              <div className="p-4 rounded-xl bg-slate-50 border border-slate-100 hover:border-indigo-100 hover:shadow-sm transition-all">
@@ -74,15 +76,28 @@ export default function AboutModal({ isOpen, onClose }: AboutModalProps) {
                 <div className="p-2 bg-purple-100 text-purple-600 rounded-lg">
                    <CreditCard size={18} />
                 </div>
-                <h4 className="font-semibold text-slate-800">Payments</h4>
+                <h4 className="font-semibold text-slate-800">{t.about.payments}</h4>
               </div>
-               <p className="text-xs text-slate-500">Integrated <strong>Stripe</strong> payment processing for credit management and premium features.</p>
+               <p className="text-xs text-slate-500">{t.about.paymentsDesc}</p>
+            </div>
+          </div>
+
+          {/* Language Support Notice */}
+          <div className="mt-6 p-4 rounded-xl bg-amber-50 border border-amber-100">
+            <div className="flex items-start gap-3">
+              <div className="p-2 bg-amber-100 text-amber-600 rounded-lg flex-shrink-0">
+                <Languages size={18} />
+              </div>
+              <div>
+                <h4 className="font-semibold text-slate-800 mb-1">{t.about.languageSupport}</h4>
+                <p className="text-xs text-slate-600">{t.about.languageSupportDesc}</p>
+              </div>
             </div>
           </div>
           
            <div className="mt-8 pt-6 border-t border-slate-100 text-center">
               <p className="text-xs text-slate-400">
-                Created by [Your Name] &bull; 2026
+                {t.about.createdBy}
               </p>
            </div>
         </div>

@@ -33,6 +33,22 @@ const createTableQuery = `
     stripe_session_id VARCHAR(255),
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
   );
+
+  CREATE TABLE IF NOT EXISTS search_history (
+    id SERIAL PRIMARY KEY,
+    user_id TEXT NOT NULL,
+    query TEXT NOT NULL,
+    response TEXT,
+    created_at TIMESTAMP DEFAULT NOW()
+  );
+
+  CREATE INDEX IF NOT EXISTS idx_search_history_user_id ON bible_assistant.search_history(user_id);
+
+  ALTER TABLE bible_assistant.search_history 
+  ADD COLUMN IF NOT EXISTS bible_results TEXT,
+  ADD COLUMN IF NOT EXISTS commentary_results TEXT,
+  ADD COLUMN IF NOT EXISTS language VARCHAR(10),
+  ADD COLUMN IF NOT EXISTS settings JSONB;
 `;
 
 async function setup() {
