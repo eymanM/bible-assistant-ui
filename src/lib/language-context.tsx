@@ -13,6 +13,7 @@ const LanguageContext = createContext<LanguageContextType | undefined>(undefined
 
 export function LanguageProvider({ children }: { children: React.ReactNode }) {
   const [language, setLanguageState] = useState<Language>('en');
+  const [mounted, setMounted] = useState(false);
 
   // Load language from localStorage on mount
   useEffect(() => {
@@ -20,6 +21,7 @@ export function LanguageProvider({ children }: { children: React.ReactNode }) {
     if (savedLanguage && (savedLanguage === 'en' || savedLanguage === 'pl')) {
       setLanguageState(savedLanguage);
     }
+    setMounted(true);
   }, []);
 
   // Save language to localStorage when it changes
@@ -29,6 +31,16 @@ export function LanguageProvider({ children }: { children: React.ReactNode }) {
   };
 
   const t = translations[language];
+
+  // Prevent hydration mismatch by returning null until mounted
+  // or a placeholder with the default language
+  if (!mounted) {
+    return (
+      <LanguageContext.Provider value={{ language: 'en', setLanguage, t: translations.en }}>
+        <div style={{ visibility: 'hidden' }}>{children}</div>
+      </LanguageContext.Provider>
+    );
+  }
 
   return (
     <LanguageContext.Provider value={{ language, setLanguage, t }}>

@@ -46,6 +46,25 @@ export const useBibleSearch = () => {
     setResults({ bible: [], commentary: [], llmResponse: '' });
 
     try {
+      // Check credits BEFORE starting search if AI insights are enabled
+      if (settings.insights) {
+        if (!user || !user.userId) {
+          throw new Error('You must be logged in to use AI Insights');
+        }
+
+        // Check if user has sufficient credits
+        const checkRes = await fetch('/api/credits/check', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ userId: user.userId })
+        });
+
+        if (!checkRes.ok) {
+          const errorData = await checkRes.json();
+          throw new Error(errorData.error || 'Insufficient credits');
+        }
+      }
+
       const response = await fetch(`${API_DOMAIN}/search`, {
         method: 'POST',
         headers: {
@@ -161,25 +180,23 @@ export const useBibleSearch = () => {
       }
 
       // Only deduct credits if AI insights are enabled AND we got results
-      if (settings.insights && hasResults) {
-        if (!user || !user.userId) {
-          throw new Error('You must be logged in to use AI Insights');
-        }
+      if (settings.insights && hasResults && user?.userId) {
+        try {
+          const deductRes = await fetch('/api/credits/deduct', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ userId: user.userId })
+          });
 
-        const deductRes = await fetch('/api/credits/deduct', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ userId: user.userId })
-        });
-
-        if (!deductRes.ok) {
-          const errorData = await deductRes.json();
-          // If credit deduction fails, show error but keep the results
-          console.error('Failed to deduct credits:', errorData.error);
+          if (!deductRes.ok) {
+            const errorData = await deductRes.json();
+            // Silently log the error - don't show to user, don't block results
+            console.warn('Credit deduction failed:', errorData.error);
+          }
+        } catch (e) {
+          // Silently log any errors - don't interrupt user experience
+          console.warn('Credit deduction error:', e);
         }
-      } else if (settings.insights && !hasResults) {
-        // Show message to user that no results were found, so no credits were charged
-        setError('No results found for your search. No credits were charged.');
       }
     } catch (err) {
       setError(err instanceof Error ? err.message : 'An error occurred');
