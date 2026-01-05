@@ -1,7 +1,8 @@
 'use client';
 
 import React from 'react';
-import { MessageSquareText, BookOpen, Scroll, Languages, Lightbulb, Check, History, X } from 'lucide-react';
+import { MessageSquareText, BookOpen, Scroll, Languages, Lightbulb, Check, History, X, LogOut, User } from 'lucide-react';
+import Link from 'next/link';
 import AboutModal from './AboutModal';
 import HistoryModal from './HistoryModal';
 import { version } from '../../package.json';
@@ -28,9 +29,11 @@ interface SidebarProps {
   isOpen?: boolean;
   onClose?: () => void;
   onLanguageChange?: () => void;
+  user?: any;
+  onLogout?: () => void;
 }
 
-const Sidebar: React.FC<SidebarProps> = ({ settings, setSettings, onSearch, onHistoryClick, refreshTrigger, isOpen = false, onClose, onLanguageChange }) => {
+const Sidebar: React.FC<SidebarProps> = ({ settings, setSettings, onSearch, onHistoryClick, refreshTrigger, isOpen = false, onClose, onLanguageChange, user, onLogout }) => {
   const { t, language, setLanguage } = useLanguage();
 
   const handleToggle = (key: keyof typeof settings) => {
@@ -163,6 +166,38 @@ const Sidebar: React.FC<SidebarProps> = ({ settings, setSettings, onSearch, onHi
           </button>
 
         </div>
+
+        {/* User Section - visible on mobile mostly */}
+        {user && (
+          <div className="px-4 mb-2">
+             <div className="mb-2 px-2">
+              <h2 className="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-2">
+                {t.main.account}
+              </h2>
+            </div>
+            
+            <Link
+              href="/account"
+              onClick={onClose}
+              className="w-full flex items-center justify-between p-3 rounded-xl transition-all duration-200 hover:bg-slate-50 text-slate-600 hover:text-indigo-600 group"
+            >
+              <div className="flex items-center gap-3">
+                <User className="w-5 h-5 text-slate-400 group-hover:text-indigo-500" />
+                <span className="font-medium text-sm">{t.main.account}</span>
+              </div>
+            </Link>
+
+            <button
+              onClick={onLogout}
+              className="w-full flex items-center justify-between p-3 rounded-xl transition-all duration-200 hover:bg-red-50 text-slate-600 hover:text-red-600 group mb-2"
+            >
+              <div className="flex items-center gap-3">
+                <LogOut className="w-5 h-5 text-slate-400 group-hover:text-red-500" />
+                <span className="font-medium text-sm">{t.main.logout}</span>
+              </div>
+            </button>
+          </div>
+        )}
 
         <div className="p-4 border-t border-slate-100 bg-slate-50/50">
            <button 
