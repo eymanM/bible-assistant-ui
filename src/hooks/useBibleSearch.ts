@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { API_DOMAIN } from '../config/apiConfig';
 import { useAuth } from '../lib/auth-context';
+import { useLanguage } from '../lib/language-context';
 
 interface BibleSearchSettings {
   oldTestament: boolean;
@@ -23,6 +24,7 @@ export const useBibleSearch = () => {
     commentary: false,
     insights: true
   });
+  const { language } = useLanguage();
   const [results, setResults] = useState<{
     bible: string[];
     commentary: string[];
@@ -35,6 +37,7 @@ export const useBibleSearch = () => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const { user } = useAuth();
+  const [historyRefreshTrigger, setHistoryRefreshTrigger] = useState(0);
 
   const search = async (searchQuery: string) => {
     setQuery(searchQuery);
@@ -51,7 +54,10 @@ export const useBibleSearch = () => {
         },
         body: JSON.stringify({ 
           query: searchQuery,
-          settings
+          settings: {
+            ...settings,
+            language
+          }
         }),
       });
 
@@ -129,6 +135,31 @@ export const useBibleSearch = () => {
         }
       }
 
+
+
+      // Save to history if we have results and a user
+      if (hasResults && user?.userId) {
+        try {
+          await fetch('/api/history', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              userId: user.userId,
+              query: searchQuery,
+              response: tempResults.llmResponse,
+              bible_results: tempResults.bible,
+              commentary_results: tempResults.commentary,
+              language: language,
+              settings: settings
+            })
+          });
+          // Trigger history refresh
+          setHistoryRefreshTrigger(prev => prev + 1);
+        } catch (e) {
+          console.error('Failed to save history:', e);
+        }
+      }
+
       // Only deduct credits if AI insights are enabled AND we got results
       if (settings.insights && hasResults) {
         if (!user || !user.userId) {
@@ -158,6 +189,38 @@ export const useBibleSearch = () => {
     }
   };
 
+  const loadFromHistory = (
+    historyItem: { 
+      query: string; 
+      response?: string; 
+      bible_results?: string[]; 
+      commentary_results?: string[];
+      language?: string;
+      settings?: any;
+    },
+    setLanguage?: (lang: 'en' | 'pl') => void
+  ) => {
+    setQuery(historyItem.query);
+    setResults({
+      bible: historyItem.bible_results || [],
+      commentary: historyItem.commentary_results || [],
+      llmResponse: historyItem.response || ''
+    });
+    
+    // Restore settings if available
+    if (historyItem.settings) {
+      setSettings(historyItem.settings);
+    }
+    
+    // Restore language if available and setLanguage is provided
+    if (historyItem.language && setLanguage) {
+      setLanguage(historyItem.language as 'en' | 'pl');
+    }
+    
+    setError(null);
+    setLoading(false);
+  };
+
   return {
     query,
     settings,
@@ -165,6 +228,8 @@ export const useBibleSearch = () => {
     results,
     loading,
     error,
-    search
+    search,
+    loadFromHistory,
+    historyRefreshTrigger
   };
 };

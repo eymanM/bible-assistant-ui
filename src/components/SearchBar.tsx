@@ -1,19 +1,29 @@
 import { Search } from 'lucide-react';
 import React, { useState, useEffect } from 'react';
+import { useLanguage } from '../lib/language-context';
 
 interface SearchBarProps {
   onSearch: (query: string) => void;
   disabled?: boolean;
+  showCreditsWarning?: boolean;
+  currentQuery?: string;
 }
 
-const SearchBar: React.FC<SearchBarProps> = ({ onSearch, disabled }) => {
-  const [query, setQuery] = useState('');
+const SearchBar: React.FC<SearchBarProps> = ({ onSearch, disabled, showCreditsWarning = true, currentQuery }) => {
+  const { t } = useLanguage();
+  const [query, setQuery] = useState(currentQuery || '');
 
   useEffect(() => {
     if (disabled) {
       setQuery('');
     }
   }, [disabled]);
+
+  useEffect(() => {
+    if (currentQuery !== undefined) {
+      setQuery(currentQuery);
+    }
+  }, [currentQuery]);
 
   const handleSearch = () => {
     if (!disabled && query.trim()) {
@@ -30,7 +40,7 @@ const SearchBar: React.FC<SearchBarProps> = ({ onSearch, disabled }) => {
           onChange={(e) => setQuery(e.target.value)}
           onKeyDown={(e) => e.key === 'Enter' && handleSearch()}
           disabled={disabled}
-          placeholder={disabled ? "Sign in to start your journey..." : "Ask a question (e.g., 'What did Paul say about love?')"}
+          placeholder={disabled ? t.main.loginRequired : t.main.searchPlaceholder}
           className={`w-full px-6 py-5 pl-14 text-lg bg-white border-2 rounded-2xl transition-all duration-300 outline-none
             ${disabled 
               ? 'bg-gray-50 border-gray-100 text-gray-400 cursor-not-allowed placeholder-gray-400' 
@@ -52,13 +62,13 @@ const SearchBar: React.FC<SearchBarProps> = ({ onSearch, disabled }) => {
                 : 'bg-indigo-600 text-white shadow-md shadow-indigo-500/20 hover:bg-indigo-700 hover:shadow-indigo-500/30 transform active:scale-95'
           }`}
         >
-          Search
+          {t.main.searchButton}
         </button>
       </div>
       
-      {!disabled && (
+      {!disabled && showCreditsWarning && (
         <p className="text-xs text-slate-500 text-center mt-3">
-          Credits are only used for AI-generated insights
+          {t.main.creditsOnlyFor}
         </p>
       )}
     </div>

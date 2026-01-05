@@ -2,13 +2,11 @@
 
 Bible Assistant is a modern, full-stack web application designed to revolutionize Bible study through the power of Artificial Intelligence. It provides users with semantic search capabilities, deep theological insights, and tailored commentaries, all wrapped in a premium, responsive user interface.
 
-![Bible Assistant App Banner](https://placehold.co/1200x600/4f46e5/ffffff?text=Bible+Assistant+App+Preview)
-
 ## 🚀 Key Features
 
 - **🧠 Semantic Search**: Go beyond keyword matching. Ask natural language questions like *"What does the Bible say about anxiety?"* and get relevant scriptures and interpretations.
 - **✨ AI Insights**: Leveraging LLMs to generate context-aware explanations and summaries for complex theological concepts.
-- **📚 Multi-Translation Support**: Seamlessly switch between different Bible translations (Old & New Testament).
+- **📚 Old & New Testament**: Seamlessly access both Old and New Testament scriptures. 
 - **📝 Commentary & Analysis**: Integrated commentaries to provide historical and cultural context.
 - **🔐 Secure Authentication**: Robust user management via **AWS Cognito**.
 - **💳 Credit System**: **Stripe** integration for managing study credits and premium features.
@@ -43,8 +41,8 @@ Follow these instructions to set up the project locally.
 
 1. **Clone the repository**
    ```bash
-   git clone https://github.com/yourusername/bible-assistant-next.git
-   cd bible-assistant-next
+   git clone https://github.com/eymanM/bible-assistant-ui.git
+   cd bible-assistant-ui
    ```
 
 2. **Install Frontend Dependencies**
@@ -74,10 +72,11 @@ Follow these instructions to set up the project locally.
 5. **Start the Backend API**
    This frontend requires the **Bible Assistant API** to be running.
    
-   Navigate to the backend directory and start the server:
-
+   Clone the backend repository and start the server:
+   
    ```bash
-   # Inside the backend directory
+   git clone https://github.com/eymanM/bible-assistant.git
+   cd bible-assistant
    pip install -r requirements.txt
    python app.py
    ```
@@ -100,10 +99,10 @@ Contributions are welcome! Please feel free to submit a Pull Request.
 
 ## 📄 License
 
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+This project is licensed under the MIT License
 
 ---
 
 <p align="center">
-  Made with ❤️ by [Your Name]
+  Made with ❤️ by Mateusz
 </p>
