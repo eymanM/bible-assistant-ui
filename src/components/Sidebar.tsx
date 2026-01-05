@@ -27,9 +27,10 @@ interface SidebarProps {
   refreshTrigger?: number;
   isOpen?: boolean;
   onClose?: () => void;
+  onLanguageChange?: () => void;
 }
 
-const Sidebar: React.FC<SidebarProps> = ({ settings, setSettings, onSearch, onHistoryClick, refreshTrigger, isOpen = false, onClose }) => {
+const Sidebar: React.FC<SidebarProps> = ({ settings, setSettings, onSearch, onHistoryClick, refreshTrigger, isOpen = false, onClose, onLanguageChange }) => {
   const { t, language, setLanguage } = useLanguage();
 
   const handleToggle = (key: keyof typeof settings) => {
@@ -38,6 +39,9 @@ const Sidebar: React.FC<SidebarProps> = ({ settings, setSettings, onSearch, onHi
 
   const handleLanguageChange = (lang: 'en' | 'pl') => {
     setLanguage(lang);
+    if (onLanguageChange) {
+      onLanguageChange();
+    }
   };
 
   const menuItems = [
