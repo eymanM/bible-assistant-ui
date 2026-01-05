@@ -1,7 +1,7 @@
 'use client';
 
 import React from 'react';
-import { Settings, BookOpen, Scroll, Languages, Lightbulb, Check, History } from 'lucide-react';
+import { MessageSquareText, BookOpen, Scroll, Languages, Lightbulb, Check, History, X } from 'lucide-react';
 import AboutModal from './AboutModal';
 import HistoryModal from './HistoryModal';
 import { version } from '../../package.json';
@@ -25,9 +25,11 @@ interface SidebarProps {
   onSearch: (query: string) => void;
   onHistoryClick: (item: { query: string; response?: string; bible_results?: string[]; commentary_results?: string[] }) => void;
   refreshTrigger?: number;
+  isOpen?: boolean;
+  onClose?: () => void;
 }
 
-const Sidebar: React.FC<SidebarProps> = ({ settings, setSettings, onSearch, onHistoryClick, refreshTrigger }) => {
+const Sidebar: React.FC<SidebarProps> = ({ settings, setSettings, onSearch, onHistoryClick, refreshTrigger, isOpen = false, onClose }) => {
   const { t, language, setLanguage } = useLanguage();
 
   const handleToggle = (key: keyof typeof settings) => {
@@ -42,23 +44,36 @@ const Sidebar: React.FC<SidebarProps> = ({ settings, setSettings, onSearch, onHi
     { key: 'insights', label: t.sidebar.aiInsights, icon: Lightbulb },
     { key: 'oldTestament', label: t.sidebar.oldTestament, icon: Scroll },
     { key: 'newTestament', label: t.sidebar.newTestament, icon: BookOpen },
-    { key: 'commentary', label: t.sidebar.commentary, icon: Settings },
+    { key: 'commentary', label: t.sidebar.commentary, icon: MessageSquareText },
   ];
 
   const [isAboutOpen, setIsAboutOpen] = React.useState(false);
   const [isHistoryOpen, setIsHistoryOpen] = React.useState(false);
 
+  // Close sidebar on mobile when history or about is clicked, or update this logic if needed.
+  // Actually usually we might want to keep it open or close it. I'll leave it for now.
+
   return (
     <>
-      <aside className="w-72 bg-white flex flex-col h-screen sticky top-0 shadow-lg shadow-slate-200/50 z-20 transition-all duration-300 border-r border-slate-100">
-        <div className="p-6 border-b border-slate-100">
+      <aside className={`
+        fixed inset-y-0 left-0 z-50 w-72 bg-white flex flex-col h-screen shadow-2xl transition-transform duration-300 ease-in-out border-r border-slate-100
+        md:translate-x-0 md:sticky md:top-0 md:shadow-lg md:z-20
+        ${isOpen ? 'translate-x-0' : '-translate-x-full'}
+      `}>
+        <div className="p-6 border-b border-slate-100 flex items-center justify-between">
           <div className="flex items-center gap-3">
             <div className="bg-indigo-600 p-2 rounded-lg shadow-md shadow-indigo-500/20">
               <BookOpen className="w-5 h-5 text-white" />
             </div>
             <h1 className="text-xl font-bold tracking-tight text-slate-800">{t.sidebar.title}</h1>
           </div>
-          <p className="text-xs text-slate-500 mt-2 px-1">{t.sidebar.subtitle}</p>
+          {/* Close button for mobile */}
+          <button 
+            onClick={onClose}
+            className="md:hidden p-1 text-slate-400 hover:text-slate-600 hover:bg-slate-100 rounded-md transition-colors"
+          >
+            <X className="w-5 h-5" />
+          </button>
         </div>
 
         <div className="flex-1 overflow-y-auto py-6 px-4">
