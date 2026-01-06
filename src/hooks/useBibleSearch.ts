@@ -91,6 +91,7 @@ export const useBibleSearch = () => {
       let buffer = '';
       let hasResults = false;
       let tempResults = { bible: [], commentary: [], llmResponse: '' };
+      let isFirstData = true;
 
       while (true) {
         const { done, value } = await reader.read();
@@ -137,6 +138,11 @@ export const useBibleSearch = () => {
             } catch (e) {
               console.error('Error parsing results:', e);
             }
+
+            if (isFirstData) {
+              setLoading(false);
+              isFirstData = false;
+            }
           } else if (event === 'token' && data) {
             try {
               const parsed = JSON.parse(data);
@@ -149,6 +155,11 @@ export const useBibleSearch = () => {
               }
             } catch (e) {
               console.error('Error parsing token:', e);
+            }
+            
+            if (isFirstData) {
+              setLoading(false);
+              isFirstData = false;
             }
           }
         }
