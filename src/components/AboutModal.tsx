@@ -88,10 +88,6 @@ export default function AboutModal({ isOpen, onClose }: AboutModalProps) {
               <div className="p-2 bg-amber-100 text-amber-600 rounded-lg flex-shrink-0">
                 <Languages size={18} />
               </div>
-              <div>
-                <h4 className="font-semibold text-slate-800 mb-1">{t.about.languageSupport}</h4>
-                <p className="text-xs text-slate-600">{t.about.languageSupportDesc}</p>
-              </div>
             </div>
           </div>
           

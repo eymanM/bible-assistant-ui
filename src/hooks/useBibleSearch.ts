@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { API_DOMAIN } from '../config/apiConfig';
+
 import { useAuth } from '../lib/auth-context';
 import { useLanguage } from '../lib/language-context';
 
@@ -65,7 +65,7 @@ export const useBibleSearch = () => {
         }
       }
 
-      const response = await fetch(`${API_DOMAIN}/search`, {
+      const response = await fetch('/api/search', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
