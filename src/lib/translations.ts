@@ -80,8 +80,6 @@ export const translations = {
       authDesc: 'Secure authentication via AWS Cognito and cloud infrastructure on AWS.',
       payments: 'Payments',
       paymentsDesc: 'Integrated Stripe payment processing for credit management and premium features.',
-      languageSupport: 'Language Support',
-      languageSupportDesc: 'The interface supports both English and Polish. Bible search results works best in English.',
       createdBy: 'Created by Mateusz • 2026'
     },
     history: {
@@ -170,8 +168,6 @@ export const translations = {
       authDesc: 'Bezpieczna autentykacja przez AWS Cognito i infrastruktura chmurowa na AWS.',
       payments: 'Płatności',
       paymentsDesc: 'Zintegrowane przetwarzanie płatności Stripe do zarządzania kredytami i funkcjami premium.',
-      languageSupport: 'Wsparcie Językowe',
-      languageSupportDesc: 'Interfejs obsługuje zarówno angielski, jak i polski. Wyniki wyszukiwania w Biblii najlepiej działają w języku angielskim.',
       createdBy: 'Stworzony przez Mateusz • 2026'
     },
     history: {
