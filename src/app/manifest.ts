@@ -1,10 +1,17 @@
 import { MetadataRoute } from 'next';
+import { headers } from 'next/headers';
 
-export default function manifest(): MetadataRoute.Manifest {
+export default async function manifest(): Promise<MetadataRoute.Manifest> {
+  const headersList = await headers();
+  const acceptLanguage = headersList.get('accept-language') || '';
+  const isPolish = acceptLanguage.includes('pl');
+
   return {
-    name: 'Bible Assistant',
-    short_name: 'Bible',
-    description: 'A modern AI-powered Bible study assistant',
+    name: isPolish ? 'Asystent Biblijny' : 'Bible Assistant',
+    short_name: isPolish ? 'Biblia' : 'Bible',
+    description: isPolish 
+      ? 'Nowoczesny asystent biblijny wspierany przez AI' 
+      : 'A modern AI-powered Bible study assistant',
     start_url: '/',
     display: 'standalone',
     background_color: '#122d4a',
