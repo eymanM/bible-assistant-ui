@@ -69,9 +69,8 @@ const Sidebar: React.FC<SidebarProps> = ({ settings, setSettings, onSearch, onHi
       `}>
         <div className="p-6 border-b border-slate-100 flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <div className="bg-indigo-600 p-2 rounded-lg shadow-md shadow-indigo-500/20">
-              <BookOpen className="w-5 h-5 text-white" />
-            </div>
+            {/* Logo without background container */}
+            <img src="/icons/icon-192.png" alt="Logo" className="w-8 h-8 rounded-lg" />
             <h1 className="text-xl font-bold tracking-tight text-slate-800">{t.sidebar.title}</h1>
           </div>
           {/* Close button for mobile */}
