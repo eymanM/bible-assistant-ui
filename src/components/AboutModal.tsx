@@ -80,17 +80,7 @@ export default function AboutModal({ isOpen, onClose }: AboutModalProps) {
               </div>
                <p className="text-xs text-slate-500">{t.about.paymentsDesc}</p>
             </div>
-          </div>
-
-          {/* Language Support Notice */}
-          <div className="mt-6 p-4 rounded-xl bg-amber-50 border border-amber-100">
-            <div className="flex items-start gap-3">
-              <div className="p-2 bg-amber-100 text-amber-600 rounded-lg flex-shrink-0">
-                <Languages size={18} />
-              </div>
-            </div>
-          </div>
-          
+          </div>          
            <div className="mt-8 pt-6 border-t border-slate-100 text-center">
               <p className="text-xs text-slate-400">
                 {t.about.createdBy}
