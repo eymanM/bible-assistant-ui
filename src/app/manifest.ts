@@ -7,8 +7,8 @@ export default function manifest(): MetadataRoute.Manifest {
     description: 'A modern AI-powered Bible study assistant',
     start_url: '/',
     display: 'standalone',
-    background_color: '#ffffff',
-    theme_color: '#4f46e5',
+    background_color: '#122d4a',
+    theme_color: '#122d4a',
     orientation: 'portrait-primary',
     prefer_related_applications: false,
     icons: [
