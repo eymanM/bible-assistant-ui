@@ -11,8 +11,8 @@ import { useAuth } from '../lib/auth-context';
 import Link from 'next/link';
 
 const BibleApp: React.FC = () => {
-  const { query, setQuery, settings, setSettings, results, loading, error, search, loadFromHistory, historyRefreshTrigger } = useBibleSearch();
-  const { user, logout } = useAuth();
+  const { query, setQuery, settings, setSettings, results, loading: searchLoading, error, search, loadFromHistory, historyRefreshTrigger } = useBibleSearch();
+  const { user, logout, loading: authLoading } = useAuth();
   const { t, setLanguage } = useLanguage();
   const [isSidebarOpen, setIsSidebarOpen] = React.useState(false);
 
@@ -62,7 +62,9 @@ const BibleApp: React.FC = () => {
           </div>
 
           <div className="flex gap-2 md:gap-4 items-center">
-            {user ? (
+            {authLoading ? (
+              <div className="h-10 w-24 bg-slate-200 rounded-full animate-pulse" />
+            ) : user ? (
               <>
                 <div className="hidden md:flex items-center gap-3 mr-2 bg-white px-3 py-1.5 rounded-full border border-slate-200 shadow-sm">
                   <div className="w-2 h-2 rounded-full bg-green-500"></div>
@@ -101,7 +103,7 @@ const BibleApp: React.FC = () => {
                  {t.main.searchDescription}
                </p>
 
-               {!loading && !results.bible.length && !results.commentary.length && !results.llmResponse && (
+               {!searchLoading && !results.bible.length && !results.commentary.length && !results.llmResponse && (
                  <div className="flex flex-wrap items-center justify-center gap-2 max-w-2xl mx-auto mb-8 animate-in fade-in slide-in-from-bottom-4 duration-500">
                    {t.main.exampleQueries.map((suggestion) => (
                      <button
@@ -119,7 +121,7 @@ const BibleApp: React.FC = () => {
 
             <SearchBar onSearch={search} disabled={!user} showCreditsWarning={settings.insights} currentQuery={query} />
             
-            {loading && (
+            {searchLoading && (
               <div className="flex justify-center py-12">
                  <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-indigo-600"></div>
               </div>
