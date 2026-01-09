@@ -86,6 +86,12 @@ export const translations = {
       title: 'Search History',
       noHistory: 'No search history yet',
       delete: 'Delete'
+    },
+    apiErrors: {
+      userIdRequired: 'User ID is required',
+      userNotFound: 'User not found',
+      insufficientCredits: 'Insufficient credits',
+      internalError: 'Internal server error'
     }
   },
   pl: {
@@ -174,6 +180,12 @@ export const translations = {
       title: 'Historia Wyszukiwań',
       noHistory: 'Brak historii wyszukiwań',
       delete: 'Usuń'
+    },
+    apiErrors: {
+      userIdRequired: 'Identyfikator użytkownika jest wymagany',
+      userNotFound: 'Nie znaleziono użytkownika',
+      insufficientCredits: 'Niewystarczająca liczba kredytów',
+      internalError: 'Błąd wewnętrzny serwera'
     }
   }
 };

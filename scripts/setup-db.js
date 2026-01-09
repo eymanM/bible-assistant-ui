@@ -49,6 +49,16 @@ const createTableQuery = `
   ADD COLUMN IF NOT EXISTS commentary_results TEXT,
   ADD COLUMN IF NOT EXISTS language VARCHAR(10),
   ADD COLUMN IF NOT EXISTS settings JSONB;
+
+  CREATE TABLE IF NOT EXISTS translations (
+    hash TEXT PRIMARY KEY,
+    original_text TEXT NOT NULL,
+    translated_text TEXT,
+    language TEXT NOT NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+  );
+
+  
 `;
 
 async function setup() {
