@@ -148,6 +148,7 @@ export const useBibleSearch = () => {
               const parsed = JSON.parse(data);
               if (parsed.token) {
                 tempResults.llmResponse += parsed.token;
+                hasResults = true;
                 setResults(prev => ({
                   ...prev,
                   llmResponse: prev.llmResponse + parsed.token
