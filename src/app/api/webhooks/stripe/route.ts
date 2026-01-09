@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import Stripe from 'stripe';
 import { addCredits, getOrCreateUser } from '@/lib/users';
-import { createTransaction } from '@/lib/transactions';
+import { createTransaction, updateTransactionStatus } from '@/lib/transactions';
 
 export const dynamic = 'force-dynamic';
 
@@ -44,23 +44,40 @@ export async function POST(req: NextRequest) {
         console.log(`Adding ${creditsAmount} credits to user ${userId}`);
         await addCredits(userId, creditsAmount);
 
-        // Record transaction
+        // Record or Update transaction
         try {
           const amountTotal = session.amount_total ? session.amount_total / 100 : 0;
           const currency = session.currency?.toUpperCase() || 'USD';
           
-          await createTransaction(
-             user.id, // Use the internal DB ID, NOT the Cognito Sub
-             amountTotal,
-             currency,
-             creditsAmount,
-             session.id
-          );
-          console.log(`Transaction recorded for user ${userId} (Internal ID: ${user.id})`);
+          // Try to update existing 'pending' transaction first
+          const updated = await updateTransactionStatus(session.id, 'succeeded');
+          
+          if (!updated) {
+               // Fallback: Create new if not found (e.g. created before we started tracking pending)
+               await createTransaction(
+                 user.id, 
+                 amountTotal,
+                 currency,
+                 creditsAmount,
+                 session.id,
+                 'succeeded'
+               );
+               console.log(`Transaction created (fallback) for user ${userId}`);
+          } else {
+             console.log(`Transaction status updated to succeeded for user ${userId}`);
+          }
         } catch (error) {
            console.error('Failed to record transaction:', error);
         }
     }
+  } else if (event.type === 'checkout.session.expired') {
+    const session = event.data.object as Stripe.Checkout.Session;
+    console.log(`Checkout session expired: ${session.id}`);
+    await updateTransactionStatus(session.id, 'canceled');
+  } else if (event.type === 'checkout.session.async_payment_failed') {
+    const session = event.data.object as Stripe.Checkout.Session;
+    console.log(`Async payment failed for session: ${session.id}`);
+    await updateTransactionStatus(session.id, 'failed');
   }
 
   return NextResponse.json({ received: true });

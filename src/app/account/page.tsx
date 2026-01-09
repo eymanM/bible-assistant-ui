@@ -13,6 +13,7 @@ interface Transaction {
   credits: number;
   created_at: string;
   stripe_session_id: string;
+  status?: 'pending' | 'succeeded' | 'failed' | 'canceled';
 }
 
 interface UserData {
@@ -171,7 +172,13 @@ export default function AccountPage() {
                     <td className="px-6 py-4">{new Date(tx.created_at).toLocaleDateString()}</td>
                     <td className="px-6 py-4 font-medium">{tx.amount} {tx.currency}</td>
                     <td className="px-6 py-4">+{tx.credits}</td>
-                    <td className="px-6 py-4 text-green-600">{t.account.completed}</td>
+                    <td className={`px-6 py-4 font-medium ${
+                        tx.status === 'succeeded' ? 'text-green-600' :
+                        tx.status === 'pending' ? 'text-yellow-600' :
+                        'text-red-600'
+                    }`}>
+                        {tx.status === 'succeeded' ? t.account.completed : (tx.status || 'unknown')}
+                    </td>
                   </tr>
                 ))
               )}
