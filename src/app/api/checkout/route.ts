@@ -1,5 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import Stripe from 'stripe';
+import { createTransaction } from '@/lib/transactions';
+import { getOrCreateUser } from '@/lib/users';
 
 export const dynamic = 'force-dynamic';
 
@@ -44,6 +46,28 @@ export async function POST(req: NextRequest) {
         creditsAmount: credits?.toString() || '10', // Use passed credits
       },
     });
+
+    // --- Record Pending Transaction ---
+    try {
+       // Look up internal ID
+       const user = await getOrCreateUser(userId, email || 'unknown@example.com');
+       
+       const amountEstimate = 0;
+       const currency = 'USD';
+
+       await createTransaction(
+         user.id,
+         amountEstimate,
+         currency,
+         credits || 0,
+         session.id,
+         'pending'
+       );
+    } catch (txErr) {
+       console.error('Failed to record pending transaction:', txErr);
+       // We don't block the user, just log it.
+    }
+    // ----------------------------------
 
     return NextResponse.json({ sessionId: session.id, url: session.url });
   } catch (err: any) {

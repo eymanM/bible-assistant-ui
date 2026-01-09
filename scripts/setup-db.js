@@ -50,7 +50,7 @@ const createTableQuery = `
   ADD COLUMN IF NOT EXISTS language VARCHAR(10),
   ADD COLUMN IF NOT EXISTS settings JSONB;
 
-  CREATE TABLE IF NOT EXISTS translations (
+  CREATE TABLE IF NOT EXISTS bible_assistant.translations (
     hash TEXT PRIMARY KEY,
     original_text TEXT NOT NULL,
     translated_text TEXT,
@@ -58,7 +58,8 @@ const createTableQuery = `
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
   );
 
-  
+  ALTER TABLE bible_assistant.transactions
+  ADD COLUMN IF NOT EXISTS status VARCHAR(50) DEFAULT 'succeeded' NOT NULL;
 `;
 
 async function setup() {
