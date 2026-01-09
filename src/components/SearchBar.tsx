@@ -42,13 +42,13 @@ const SearchBar: React.FC<SearchBarProps> = ({ onSearch, disabled, showCreditsWa
           onChange={(e) => {
             const val = e.target.value;
             setQuery(val);
-            setShowLimitWarning(val.length >= 100);
+            setShowLimitWarning(val.length >= 150);
           }}
           onKeyDown={(e) => e.key === 'Enter' && handleSearch()}
           disabled={disabled}
-          maxLength={100}
+          maxLength={150}
           placeholder={disabled ? t.main.loginRequired : t.main.searchPlaceholder}
-          className={`w-full px-6 py-5 pl-14 text-lg bg-white border-2 rounded-2xl transition-all duration-300 outline-none
+          className={`w-full py-5 pl-14 pr-32 text-lg bg-white border-2 rounded-2xl transition-all duration-300 outline-none
             ${disabled 
               ? 'bg-gray-50 border-gray-100 text-gray-400 cursor-not-allowed placeholder-gray-400' 
               : 'border-slate-100 shadow-lg shadow-indigo-500/5 text-slate-800 focus:border-indigo-500/50 focus:ring-4 focus:ring-indigo-500/10'
