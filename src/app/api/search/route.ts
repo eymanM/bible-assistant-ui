@@ -30,9 +30,9 @@ export async function POST(req: NextRequest) {
         const match = result.rows[0];
 
         if (match) {
-          console.log('Cache hit for query:', query);
           const encoder = new TextEncoder();
           const cleanString = (str: string) => str ? str.replace(/\n/g, " ") : "";
+          
 
           const stream = new ReadableStream({
             async start(controller) {

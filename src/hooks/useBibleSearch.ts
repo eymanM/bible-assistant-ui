@@ -139,10 +139,6 @@ export const useBibleSearch = () => {
               console.error('Error parsing results:', e);
             }
 
-            if (isFirstData) {
-              setLoading(false);
-              isFirstData = false;
-            }
           } else if (event === 'token' && data) {
             try {
               const parsed = JSON.parse(data);
