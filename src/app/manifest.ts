@@ -8,7 +8,7 @@ export default async function manifest(): Promise<MetadataRoute.Manifest> {
 
   return {
     name: isPolish ? 'Asystent Biblijny' : 'Bible Assistant',
-    short_name: isPolish ? 'Biblia' : 'Bible',
+    short_name: isPolish ? 'Biblia AI' : 'Bible AI',
     description: isPolish 
       ? 'Nowoczesny asystent biblijny wspierany przez AI' 
       : 'A modern AI-powered Bible study assistant',
