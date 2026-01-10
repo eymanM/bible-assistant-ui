@@ -204,7 +204,10 @@ export const useBibleSearch = () => {
 
 
       // Save to history if we have results and a user
-      if (hasResults && user?.userId) {
+      // Requirement: if AI insights is enabled but no response received, do not save
+      const shouldSave = hasResults && user?.userId && (!settings.insights || (settings.insights && tempResults.llmResponse));
+
+      if (shouldSave) {
         try {
           await fetch('/api/history', {
             method: 'POST',
