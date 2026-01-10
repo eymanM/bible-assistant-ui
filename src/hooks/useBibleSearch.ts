@@ -158,6 +158,38 @@ export const useBibleSearch = () => {
               setLoading(false);
               isFirstData = false;
             }
+          } else if (event === 'error' && data) {
+            try {
+               const parsed = JSON.parse(data);
+               let errorMsg = parsed.error || 'An error occurred';
+               
+               // Try to clean up technical errors
+               if (typeof errorMsg === 'string') {
+                 // Handle specialized OpenAI/Backend errors that might be stringified JSON
+                 if (errorMsg.includes("'message':")) {
+                    try {
+                      // Attempt to extract the message part roughly
+                      const match = errorMsg.match(/'message':\s*"([^"]+)"/);
+                      if (match && match[1]) {
+                        errorMsg = `AI Service Error: ${match[1]}`;
+                      } 
+                      // Sometimes it uses single quotes
+                      else {
+                         const match2 = errorMsg.match(/'message':\s*'([^']+)'/);
+                         if (match2 && match2[1]) {
+                           errorMsg = `AI Service Error: ${match2[1]}`;
+                         }
+                      }
+                    } catch (ignore) {}
+                 }
+               }
+               
+               setError(errorMsg);
+            } catch (e) {
+               console.error('Error parsing error event:', e);
+               setError('An error occurred');
+            }
+            setLoading(false);
           }
         }
       }
