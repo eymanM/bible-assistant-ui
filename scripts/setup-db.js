@@ -31,7 +31,8 @@ const createTableQuery = `
     currency VARCHAR(3) NOT NULL,
     credits INTEGER NOT NULL,
     stripe_session_id VARCHAR(255),
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
   );
 
   CREATE TABLE IF NOT EXISTS search_history (
@@ -59,7 +60,8 @@ const createTableQuery = `
   );
 
   ALTER TABLE bible_assistant.transactions
-  ADD COLUMN IF NOT EXISTS status VARCHAR(50) DEFAULT 'succeeded' NOT NULL;
+  ADD COLUMN IF NOT EXISTS status VARCHAR(50) DEFAULT 'succeeded' NOT NULL,
+  ADD COLUMN IF NOT EXISTS updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP;
 `;
 
 async function setup() {
