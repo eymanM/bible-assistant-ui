@@ -92,6 +92,7 @@ export const useBibleSearch = () => {
       let hasResults = false;
       let tempResults = { bible: [], commentary: [], llmResponse: '' };
       let isFirstData = true;
+      let hasError = false;
 
       while (true) {
         const { done, value } = await reader.read();
@@ -143,12 +144,17 @@ export const useBibleSearch = () => {
             try {
               const parsed = JSON.parse(data);
               if (parsed.token) {
-                tempResults.llmResponse += parsed.token;
-                hasResults = true;
-                setResults(prev => ({
-                  ...prev,
-                  llmResponse: prev.llmResponse + parsed.token
-                }));
+                // Filter out markdown asterisks as we don't render markdown
+                const cleanToken = parsed.token.replace(/\*\*/g, '');
+                
+                if (cleanToken) {
+                  tempResults.llmResponse += cleanToken;
+                  hasResults = true;
+                  setResults(prev => ({
+                    ...prev,
+                    llmResponse: prev.llmResponse + cleanToken
+                  }));
+                }
               }
             } catch (e) {
               console.error('Error parsing token:', e);
@@ -159,6 +165,7 @@ export const useBibleSearch = () => {
               isFirstData = false;
             }
           } else if (event === 'error' && data) {
+            hasError = true;
             try {
                const parsed = JSON.parse(data);
                let errorMsg = parsed.error || 'An error occurred';
@@ -219,8 +226,8 @@ export const useBibleSearch = () => {
         }
       }
 
-      // Only deduct credits if AI insights are enabled AND we got results
-      if (settings.insights && hasResults && user?.userId) {
+      // Only deduct credits if AI insights are enabled AND we got results AND no error occurred
+      if (settings.insights && hasResults && !hasError && user?.userId) {
         try {
           const deductRes = await fetch('/api/credits/deduct', {
             method: 'POST',
