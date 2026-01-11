@@ -39,7 +39,7 @@ export async function POST(req: NextRequest) {
       ],
       mode: 'payment',
       success_url: `${baseUrl}/credits?success=true`,
-      cancel_url: `${baseUrl}/credits?canceled=true`,
+      cancel_url: `${baseUrl}/credits?canceled=true&session_id={CHECKOUT_SESSION_ID}`,
       customer_email: email,
       metadata: {
         userId, // Cognito Sub

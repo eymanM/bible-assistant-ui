@@ -73,7 +73,18 @@ function CreditsContent() {
       }, 5000);
       return () => clearTimeout(timer);
     }
-  }, [success, router]);
+
+    if (canceled) {
+      const sessionId = searchParams.get('session_id');
+      if (sessionId) {
+        // optimistically mark as canceled in DB
+        fetch('/api/transactions/cancel', {
+            method: 'POST',
+            body: JSON.stringify({ sessionId })
+        }).catch(err => console.error('Failed to mark as canceled', err));
+      }
+    }
+  }, [success, canceled, router, searchParams]);
 
   async function handleBuy(priceId: string, credits: number) {
     if (!user) {
