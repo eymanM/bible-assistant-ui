@@ -45,7 +45,8 @@ export const translations = {
         "Paul's Missionary Journeys"
       ],
       readyToSearch: 'Ready to search across scripture and commentary',
-      inputLimitReached: 'Character limit reached'
+      inputLimitReached: 'Character limit reached',
+      feedback: 'Was this helpful?'
     },
     account: {
       loadingAccountData: 'Loading account data...',
@@ -139,7 +140,8 @@ export const translations = {
         "Podróże misyjne Pawła"
       ],
       readyToSearch: 'Gotowy do wyszukiwania w Piśmie i komentarzach',
-      inputLimitReached: 'Osiągnięto limit znaków'
+      inputLimitReached: 'Osiągnięto limit znaków',
+      feedback: 'Czy to było pomocne?'
     },
     account: {
       loadingAccountData: 'Ładowanie danych konta...',
