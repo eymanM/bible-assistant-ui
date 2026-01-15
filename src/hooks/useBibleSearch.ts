@@ -149,6 +149,12 @@ export const useBibleSearch = () => {
                 commentary: parsed.commentary_results || []
               };
               
+              setResults(prev => ({
+                ...prev,
+                bible: tempResults.bible,
+                commentary: tempResults.commentary
+              }));
+              
               
               // Check if we have any results
               if (parsed.bible_results?.length > 0 || parsed.commentary_results?.length > 0) {
