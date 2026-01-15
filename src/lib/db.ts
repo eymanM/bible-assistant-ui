@@ -11,6 +11,6 @@ if (!connectionString) {
 export const pool = new Pool({
   connectionString,
   ssl: {
-    rejectUnauthorized: false // Often needed for hosted Postgres like Neon/Generic Cloud
+    rejectUnauthorized: false
   }
 });

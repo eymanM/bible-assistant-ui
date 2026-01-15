@@ -17,11 +17,13 @@ export async function POST(req: NextRequest) {
         const { language, ...querySettings } = settings;
         
         // Fetch matching result directly from DB using JSONB containment
+        // Filter out results where thumbs_down > thumbs_up (more negative than positive)
         const result = await pool.query(
           `SELECT * FROM bible_assistant.search_history 
            WHERE query = $1 
            AND language = $2 
            AND settings @> $3::jsonb
+           AND (COALESCE(thumbs_down, 0) <= COALESCE(thumbs_up, 0))
            ORDER BY created_at DESC 
            LIMIT 1`,
           [query, language || 'en', JSON.stringify(querySettings)]
@@ -43,7 +45,8 @@ export async function POST(req: NextRequest) {
 
                 const resultsData = JSON.stringify({
                   bible_results: bibleResults,
-                  commentary_results: commentaryResults
+                  commentary_results: commentaryResults,
+                  history_id: match.id // Send ID so frontend can vote on cached result
                 });
                 
                 controller.enqueue(encoder.encode(`event: results\n`));
