@@ -1,5 +1,5 @@
 import React from 'react';
-import { Book, MessageCircle, Sparkles, BookOpen } from 'lucide-react';
+import { Book, MessageCircle, Sparkles, BookOpen, ThumbsUp, ThumbsDown } from 'lucide-react';
 import SearchResultItem from './SearchResultItem';
 import { useLanguage } from '../lib/language-context';
 
@@ -8,15 +8,29 @@ interface SearchResultsProps {
   bibleResults: string[];
   commentaryResults: string[];
   llmResponse: string;
+  onVote?: (vote: 'up' | 'down') => void;
 }
 
 const SearchResults: React.FC<SearchResultsProps> = ({ 
   query, 
   bibleResults = [], 
   commentaryResults = [], 
-  llmResponse
+  llmResponse,
+  onVote
 }) => {
   const { t } = useLanguage();
+  const [voted, setVoted] = React.useState<'up' | 'down' | null>(null);
+
+  // Reset voted state when query changes
+  React.useEffect(() => {
+    setVoted(null);
+  }, [query]);
+
+  const handleVote = (type: 'up' | 'down') => {
+    if (voted || !onVote) return;
+    setVoted(type);
+    onVote(type);
+  };
 
   if (!query && !llmResponse && bibleResults.length === 0) {
     return (
@@ -37,6 +51,40 @@ const SearchResults: React.FC<SearchResultsProps> = ({
           </div>
           <div className="p-6">
             <p className="text-slate-700 leading-relaxed whitespace-pre-line">{llmResponse}</p>
+            
+            {onVote && (
+              <div className="mt-6 flex items-center justify-end gap-2 pt-4 border-t border-indigo-50">
+                <span className="text-xs text-slate-400 mr-2">{t.main.feedback || 'Was this helpful?'}</span>
+                <button 
+                  onClick={() => handleVote('up')}
+                  disabled={!!voted}
+                  className={`p-1.5 rounded-full transition-all ${
+                    voted === 'up' 
+                      ? 'bg-green-100 text-green-600' 
+                      : voted 
+                        ? 'text-slate-300' 
+                        : 'text-slate-400 hover:bg-slate-100 hover:text-green-600'
+                  }`}
+                  aria-label="Thumbs up"
+                >
+                  <ThumbsUp className="w-4 h-4" />
+                </button>
+                <button 
+                  onClick={() => handleVote('down')}
+                  disabled={!!voted}
+                  className={`p-1.5 rounded-full transition-all ${
+                    voted === 'down' 
+                      ? 'bg-red-100 text-red-600' 
+                      : voted 
+                        ? 'text-slate-300' 
+                        : 'text-slate-400 hover:bg-slate-100 hover:text-red-600'
+                  }`}
+                  aria-label="Thumbs down"
+                >
+                  <ThumbsDown className="w-4 h-4" />
+                </button>
+              </div>
+            )}
           </div>
         </section>
       )}
