@@ -24,7 +24,7 @@ export const useBibleSearch = () => {
     commentary: false,
     insights: true
   });
-  const { language } = useLanguage();
+  const { language, t } = useLanguage();
   const [results, setResults] = useState<{
     bible: string[];
     commentary: string[];
@@ -36,13 +36,36 @@ export const useBibleSearch = () => {
   });
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+
+  const getTranslatedError = (msg: string) => {
+    if (!msg) return t.apiErrors.internalError;
+    const lowerMsg = msg.toLowerCase();
+    
+    if (lowerMsg.includes('internal server error')) return t.apiErrors.internalError;
+    if (lowerMsg.includes('insufficient credits')) return t.apiErrors.insufficientCredits;
+    if (lowerMsg.includes('user not found')) return t.apiErrors.userNotFound;
+    if (lowerMsg.includes('user id is required')) return t.apiErrors.userIdRequired;
+    
+    return msg;
+  };
+
+  // Helper wrapper for setError to always translate
+  const setTranslatedError = (msg: string | null) => {
+    if (msg === null) {
+      setError(null);
+    } else {
+      setError(getTranslatedError(msg));
+    }
+  };
   const { user } = useAuth();
   const [historyRefreshTrigger, setHistoryRefreshTrigger] = useState(0);
+  const [currentHistoryId, setCurrentHistoryId] = useState<number | null>(null);
 
   const search = async (searchQuery: string) => {
     setQuery(searchQuery);
     setLoading(true);
-    setError(null);
+    setTranslatedError(null);
+    setCurrentHistoryId(null);
     setResults({ bible: [], commentary: [], llmResponse: '' });
 
     try {
@@ -126,16 +149,15 @@ export const useBibleSearch = () => {
                 commentary: parsed.commentary_results || []
               };
               
+              
               // Check if we have any results
               if (parsed.bible_results?.length > 0 || parsed.commentary_results?.length > 0) {
                 hasResults = true;
               }
               
-              setResults(prev => ({
-                ...prev,
-                bible: parsed.bible_results || [],
-                commentary: parsed.commentary_results || []
-              }));
+              if (parsed.history_id) {
+                setCurrentHistoryId(parsed.history_id);
+              }
             } catch (e) {
               console.error('Error parsing results:', e);
             }
@@ -191,10 +213,10 @@ export const useBibleSearch = () => {
                  }
                }
                
-               setError(errorMsg);
+               setTranslatedError(errorMsg);
             } catch (e) {
                console.error('Error parsing error event:', e);
-               setError('An error occurred');
+               setTranslatedError('An error occurred');
             }
             setLoading(false);
           }
@@ -209,7 +231,7 @@ export const useBibleSearch = () => {
 
       if (shouldSave) {
         try {
-          await fetch('/api/history', {
+          const historyRes = await fetch('/api/history', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
@@ -222,6 +244,14 @@ export const useBibleSearch = () => {
               settings: settings
             })
           });
+          
+          if (historyRes.ok) {
+            const historyData = await historyRes.json();
+            if (historyData.entry && historyData.entry.id) {
+               setCurrentHistoryId(historyData.entry.id);
+            }
+          }
+
           // Trigger history refresh
           setHistoryRefreshTrigger(prev => prev + 1);
         } catch (e) {
@@ -249,7 +279,7 @@ export const useBibleSearch = () => {
         }
       }
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'An error occurred');
+      setTranslatedError(err instanceof Error ? err.message : 'An error occurred');
       console.error('Search error:', err);
     } finally {
       setLoading(false);
@@ -284,8 +314,35 @@ export const useBibleSearch = () => {
       setLanguage(historyItem.language as 'en' | 'pl');
     }
     
-    setError(null);
+    
+    setTranslatedError(null);
     setLoading(false);
+    // @ts-ignore
+    if (historyItem.id) {
+      // @ts-ignore
+      setCurrentHistoryId(historyItem.id);
+    }
+  };
+
+
+  const vote = async (voteType: 'up' | 'down') => {
+    if (!currentHistoryId) return;
+    
+    try {
+      const response = await fetch('/api/vote', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ historyId: currentHistoryId, voteType })
+      });
+      
+      if (!response.ok) {
+        throw new Error('Failed to vote');
+      }
+
+      // Can optionally update local state if we want to show counts
+    } catch (e) {
+      console.error('Error voting:', e);
+    }
   };
 
   return {
@@ -298,6 +355,8 @@ export const useBibleSearch = () => {
     error,
     search,
     loadFromHistory,
-    historyRefreshTrigger
+    historyRefreshTrigger,
+    vote,
+    currentHistoryId
   };
 };
