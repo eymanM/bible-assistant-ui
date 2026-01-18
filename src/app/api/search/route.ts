@@ -17,14 +17,20 @@ export async function POST(req: NextRequest) {
         const { language, ...querySettings } = settings;
         
         // Fetch matching result directly from DB using JSONB containment
-        // Filter out results where thumbs_down > thumbs_up (more negative than positive)
+        // Filter out results where aggregate thumbs_down > thumbs_up
+        // Use COALESCE to handle cases with no user_searches entries yet
         const result = await pool.query(
-          `SELECT * FROM bible_assistant.search_history 
-           WHERE query = $1 
-           AND language = $2 
-           AND settings @> $3::jsonb
-           AND (COALESCE(thumbs_down, 0) <= COALESCE(thumbs_up, 0))
-           ORDER BY created_at DESC 
+          `SELECT s.*, 
+                  COALESCE(SUM(CASE WHEN us.thumbs_up THEN 1 ELSE 0 END), 0) as up_votes,
+                  COALESCE(SUM(CASE WHEN us.thumbs_down THEN 1 ELSE 0 END), 0) as down_votes
+           FROM bible_assistant.searches s
+           LEFT JOIN bible_assistant.user_searches us ON s.id = us.search_id
+           WHERE s.query = $1 
+           AND s.language = $2 
+           AND s.settings @> $3::jsonb
+           GROUP BY s.id
+           HAVING COALESCE(SUM(CASE WHEN us.thumbs_down THEN 1 ELSE 0 END), 0) <= COALESCE(SUM(CASE WHEN us.thumbs_up THEN 1 ELSE 0 END), 0)
+           ORDER BY s.created_at DESC 
            LIMIT 1`,
           [query, language || 'en', JSON.stringify(querySettings)]
         );
@@ -46,7 +52,7 @@ export async function POST(req: NextRequest) {
                 const resultsData = JSON.stringify({
                   bible_results: bibleResults,
                   commentary_results: commentaryResults,
-                  history_id: match.id // Send ID so frontend can vote on cached result
+                  search_id: match.id // Return search_id instead of history_id
                 });
                 
                 controller.enqueue(encoder.encode(`event: results\n`));

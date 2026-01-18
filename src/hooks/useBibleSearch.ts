@@ -60,12 +60,14 @@ export const useBibleSearch = () => {
   const { user } = useAuth();
   const [historyRefreshTrigger, setHistoryRefreshTrigger] = useState(0);
   const [currentHistoryId, setCurrentHistoryId] = useState<number | null>(null);
+  const [currentSearchId, setCurrentSearchId] = useState<number | null>(null);
 
   const search = async (searchQuery: string) => {
     setQuery(searchQuery);
     setLoading(true);
     setTranslatedError(null);
     setCurrentHistoryId(null);
+    setCurrentSearchId(null);
     setResults({ bible: [], commentary: [], llmResponse: '' });
 
     try {
@@ -163,6 +165,9 @@ export const useBibleSearch = () => {
               
               if (parsed.history_id) {
                 setCurrentHistoryId(parsed.history_id);
+              }
+              if (parsed.search_id) {
+                setCurrentSearchId(parsed.search_id);
               }
             } catch (e) {
               console.error('Error parsing results:', e);
@@ -320,9 +325,10 @@ export const useBibleSearch = () => {
       setLanguage(historyItem.language as 'en' | 'pl');
     }
     
-    
     setTranslatedError(null);
     setLoading(false);
+    
+    setCurrentSearchId(null);
     // @ts-ignore
     if (historyItem.id) {
       // @ts-ignore
@@ -332,20 +338,30 @@ export const useBibleSearch = () => {
 
 
   const vote = async (voteType: 'up' | 'down') => {
-    if (!currentHistoryId) return;
+    // We can vote if we have a historyId OR (searchId and user)
+    if (!currentHistoryId && (!currentSearchId || !user?.userId)) return;
     
     try {
       const response = await fetch('/api/vote', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ historyId: currentHistoryId, voteType })
+        body: JSON.stringify({ 
+          historyId: currentHistoryId, 
+          searchId: currentSearchId,
+          userId: user?.userId, 
+          voteType 
+        })
       });
       
       if (!response.ok) {
         throw new Error('Failed to vote');
       }
 
-      // Can optionally update local state if we want to show counts
+      const data = await response.json();
+      if (data.historyId) {
+        setCurrentHistoryId(data.historyId);
+      }
+
     } catch (e) {
       console.error('Error voting:', e);
     }
