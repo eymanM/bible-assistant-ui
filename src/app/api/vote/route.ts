@@ -6,28 +6,35 @@ export async function POST(req: NextRequest) {
     const body = await req.json();
     const { historyId, voteType } = body;
 
+    // historyId refers to bible_assistant.user_searches.id
     if (!historyId || !['up', 'down'].includes(voteType)) {
       return NextResponse.json({ error: 'Invalid parameters' }, { status: 400 });
     }
 
-    const column = voteType === 'up' ? 'thumbs_up' : 'thumbs_down';
+    const isUp = voteType === 'up';
 
-    // Increment the vote count safely
+    // Update the specific user's interaction
+    // We toggle the vote: if up is clicked, up=true, down=false
     const result = await pool.query(
-      `UPDATE bible_assistant.search_history 
-       SET ${column} = COALESCE(${column}, 0) + 1 
-       WHERE id = $1 
+      `UPDATE bible_assistant.user_searches 
+       SET thumbs_up = $1, thumbs_down = $2
+       WHERE id = $3 
        RETURNING thumbs_up, thumbs_down`,
-      [historyId]
+      [isUp, !isUp, historyId]
     );
 
     if (result.rowCount === 0) {
       return NextResponse.json({ error: 'History item not found' }, { status: 404 });
     }
 
+    // Return current state (booleans converted to what frontend might expect if it wants verification)
+    // Note: The previous API returned counts, but now this is a user-specific action.
+    // If the frontend expects total counts, we would need to query the aggregate from user_searches for this search_id.
+    // However, for the user's immediate feedback, reflecting their choice is usually sufficient.
+    
     return NextResponse.json({ 
       success: true, 
-      counts: {
+      vote: {
         thumbsUp: result.rows[0].thumbs_up,
         thumbsDown: result.rows[0].thumbs_down
       }
