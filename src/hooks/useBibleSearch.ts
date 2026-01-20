@@ -45,6 +45,9 @@ export const useBibleSearch = () => {
     if (lowerMsg.includes('insufficient credits')) return t.apiErrors.insufficientCredits;
     if (lowerMsg.includes('user not found')) return t.apiErrors.userNotFound;
     if (lowerMsg.includes('user id is required')) return t.apiErrors.userIdRequired;
+    if (lowerMsg.includes('network response was not ok')) return t.apiErrors.networkError;
+    if (lowerMsg.includes('unauthorized') || lowerMsg.includes('nieautoryzowany')) return t.apiErrors.unauthorized;
+    if (lowerMsg.includes('failed to vote')) return t.apiErrors.failedToVote;
     
     return msg;
   };
@@ -178,7 +181,14 @@ export const useBibleSearch = () => {
               const parsed = JSON.parse(data);
               if (parsed.token) {
                 // Filter out markdown asterisks as we don't render markdown
-                const cleanToken = parsed.token.replace(/\*\*/g, '');
+                let tokenStr = '';
+                if (typeof parsed.token === 'string') {
+                  tokenStr = parsed.token;
+                } else if (typeof parsed.token === 'object' && parsed.token?.text) {
+                  tokenStr = parsed.token.text;
+                }
+                
+                const cleanToken = tokenStr.replace(/\*\*/g, '');
                 
                 if (cleanToken) {
                   tempResults.llmResponse += cleanToken;

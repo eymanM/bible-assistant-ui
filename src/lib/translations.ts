@@ -92,7 +92,10 @@ export const translations = {
       userIdRequired: 'User ID is required',
       userNotFound: 'User not found',
       insufficientCredits: 'Insufficient credits',
-      internalError: 'Internal server error'
+      internalError: 'Internal server error',
+      networkError: 'Network response was not ok',
+      unauthorized: 'Unauthorized access',
+      failedToVote: 'Failed to vote'
     }
   },
   pl: {
@@ -187,7 +190,10 @@ export const translations = {
       userIdRequired: 'Identyfikator użytkownika jest wymagany',
       userNotFound: 'Nie znaleziono użytkownika',
       insufficientCredits: 'Niewystarczająca liczba kredytów',
-      internalError: 'Błąd wewnętrzny serwera'
+      internalError: 'Błąd wewnętrzny serwera',
+      networkError: 'Błąd połączenia sieciowego',
+      unauthorized: 'Nieautoryzowany dostęp',
+      failedToVote: 'Nie udało się zagłosować'
     }
   }
 };
