@@ -100,7 +100,7 @@ export async function POST(req: NextRequest) {
       headers: {
         'Content-Type': 'application/json',
         'Accept': 'text/event-stream',
-        'X-API-KEY': process.env.API_KEY || '',
+        'X-API-KEY': process.env.BACKEND_API_KEY || '',
       },
       body: JSON.stringify(body),
     });

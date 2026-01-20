@@ -62,6 +62,8 @@ Follow these instructions to set up the project locally.
    STRIPE_WEBHOOK_SECRET=whsec_ac..
    STRIPE_SECRET_KEY=sk_test_51S..
    DATABASE_URL=postgres://postgres:password@localhost:5432/postgres
+   NODE_ENV=development
+   BACKEND_API_KEY=your-api-key-here
    ```
 
 4. **Run the Development Server**
