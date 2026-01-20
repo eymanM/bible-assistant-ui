@@ -48,6 +48,7 @@ export const useBibleSearch = () => {
     if (lowerMsg.includes('network response was not ok')) return t.apiErrors.networkError;
     if (lowerMsg.includes('unauthorized') || lowerMsg.includes('nieautoryzowany')) return t.apiErrors.unauthorized;
     if (lowerMsg.includes('failed to vote')) return t.apiErrors.failedToVote;
+    if (lowerMsg.includes("'nonetype' object has no attribute 'stream'")) return t.apiErrors.internalError;
     
     return msg;
   };
