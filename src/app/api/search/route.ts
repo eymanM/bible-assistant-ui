@@ -114,27 +114,51 @@ export async function POST(req: NextRequest) {
     }
 
     // Forward the stream
-    const stream = new ReadableStream({
-      async start(controller) {
-        if (!response.body) return;
-        const reader = response.body.getReader();
+    // Forward the stream and capture data for saving
+    const encoder = new TextEncoder();
+    const decoder = new TextDecoder();
+    
+    let fullResponse = '';
+    let bibleResults = '[]';
+    let commentaryResults = '[]';
+    let searchId: number | null = null;
 
-        try {
-          while (true) {
-            const { done, value } = await reader.read();
-            if (done) break;
-            controller.enqueue(value);
+    const stream = new TransformStream({
+      transform(chunk, controller) {
+        controller.enqueue(chunk);
+        const text = decoder.decode(chunk, { stream: true });
+        
+        // Simple SSE parsing to capture data
+        const lines = text.split('\n');
+        for (const line of lines) {
+          if (line.startsWith('data: ')) {
+            try {
+              const data = JSON.parse(line.slice(6));
+              
+              if (data.bible_results) {
+                bibleResults = JSON.stringify(data.bible_results);
+              }
+              if (data.commentary_results) {
+                commentaryResults = JSON.stringify(data.commentary_results);
+              }
+              if (data.token) {
+                fullResponse += data.token;
+              }
+            } catch (e) {
+              // Ignore parse errors for partial chunks
+            }
           }
-        } catch (e) {
-          console.error('Streaming error:', e);
-          controller.error(e);
-        } finally {
-          controller.close();
         }
       },
+      async flush(controller) {
+        // Save logic moved to /api/history to avoid duplication and race conditions
+        // The frontend calls /api/history with the complete response after streaming finishes
+      }
     });
 
-    return new NextResponse(stream, {
+    if (!response.body) return new NextResponse(null, { status: 500 });
+    
+    return new NextResponse(response.body.pipeThrough(stream), {
       headers: {
         'Content-Type': 'text/event-stream',
         'Cache-Control': 'no-cache',

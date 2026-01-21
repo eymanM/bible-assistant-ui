@@ -67,20 +67,31 @@ export async function POST(req: NextRequest) {
       let searchId;
 
       // Try to find existing search first
+      // We want the LATEST one that matches query/settings.
       const existingSearch = await client.query(
-        `SELECT id FROM bible_assistant.searches 
-         WHERE query = $1 AND language = $2 AND (settings IS NOT DISTINCT FROM $3::jsonb)`,
+        `SELECT id, response FROM bible_assistant.searches 
+         WHERE query = $1 AND language = $2 AND (settings IS NOT DISTINCT FROM $3::jsonb)
+         ORDER BY created_at DESC
+         LIMIT 1`,
         [query, lang, searchSettings]
       );
 
+      let shouldUseExisting = false;
       if (existingSearch.rows.length > 0) {
-        searchId = existingSearch.rows[0].id;
-      } else {
+        const row = existingSearch.rows[0];
+        // If response matches (or both null), reuse it. 
+        // We compare response to ensure we link to the specific generation user just saw.
+        if (row.response === (response || null)) {
+            searchId = row.id;
+            shouldUseExisting = true;
+        }
+      }
+
+      if (!shouldUseExisting) {
         // Insert new search
         const insertSearch = await client.query(
           `INSERT INTO bible_assistant.searches (query, language, settings, response, bible_results, commentary_results)
            VALUES ($1, $2, $3, $4, $5, $6)
-           ON CONFLICT (query, language, settings) DO UPDATE SET query = EXCLUDED.query -- dummy update to return id if race condition
            RETURNING id`,
           [
             query, 

@@ -11,7 +11,7 @@ import { useAuth } from '../lib/auth-context';
 import Link from 'next/link';
 
 const BibleApp: React.FC = () => {
-  const { query, setQuery, settings, setSettings, results, loading: searchLoading, error, search, loadFromHistory, historyRefreshTrigger, vote } = useBibleSearch();
+  const { query, setQuery, settings, setSettings, results, loading: searchLoading, error, search, loadFromHistory, historyRefreshTrigger, vote, voteStatus } = useBibleSearch();
   const { user, logout, loading: authLoading } = useAuth();
   const { t, setLanguage } = useLanguage();
   const [isSidebarOpen, setIsSidebarOpen] = React.useState(false);
@@ -139,6 +139,7 @@ const BibleApp: React.FC = () => {
               commentaryResults={results.commentary} 
               llmResponse={results.llmResponse} 
               onVote={vote}
+              voteStatus={voteStatus}
             />
           </div>
         </div>

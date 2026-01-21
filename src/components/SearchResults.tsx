@@ -9,6 +9,7 @@ interface SearchResultsProps {
   commentaryResults: string[];
   llmResponse: string;
   onVote?: (vote: 'up' | 'down') => void;
+  voteStatus?: 'up' | 'down' | null;
 }
 
 const SearchResults: React.FC<SearchResultsProps> = ({ 
@@ -16,19 +17,19 @@ const SearchResults: React.FC<SearchResultsProps> = ({
   bibleResults = [], 
   commentaryResults = [], 
   llmResponse,
-  onVote
+  onVote,
+  voteStatus = null
 }) => {
   const { t } = useLanguage();
-  const [voted, setVoted] = React.useState<'up' | 'down' | null>(null);
-
-  // Reset voted state when query changes
-  React.useEffect(() => {
-    setVoted(null);
-  }, [query]);
 
   const handleVote = (type: 'up' | 'down') => {
-    if (voted || !onVote) return;
-    setVoted(type);
+    // Check if onVote exists. The hook manages state now, so we don't need to check "voted" locally to prevent multi-votes if we want to allow changing votes.
+    // However, if we want to lock it, we can check voteStatus.
+    // The previous implementation locked it. Let's keep it locked if voteStatus is set, unless requirements say otherwise.
+    // But usually APIs allow changing votes.
+    // The previous code: "if (voted || !onVote) return;"
+    // Let's stick to simple safety:
+    if (!onVote) return;
     onVote(type);
   };
 
@@ -57,11 +58,10 @@ const SearchResults: React.FC<SearchResultsProps> = ({
                 <span className="text-xs text-slate-400 mr-2">{t.main.feedback || 'Was this helpful?'}</span>
                 <button 
                   onClick={() => handleVote('up')}
-                  disabled={!!voted}
                   className={`p-1.5 rounded-full transition-all ${
-                    voted === 'up' 
+                    voteStatus === 'up' 
                       ? 'bg-green-100 text-green-600' 
-                      : voted 
+                      : voteStatus 
                         ? 'text-slate-300' 
                         : 'text-slate-400 hover:bg-slate-100 hover:text-green-600'
                   }`}
@@ -71,11 +71,10 @@ const SearchResults: React.FC<SearchResultsProps> = ({
                 </button>
                 <button 
                   onClick={() => handleVote('down')}
-                  disabled={!!voted}
                   className={`p-1.5 rounded-full transition-all ${
-                    voted === 'down' 
+                    voteStatus === 'down' 
                       ? 'bg-red-100 text-red-600' 
-                      : voted 
+                      : voteStatus 
                         ? 'text-slate-300' 
                         : 'text-slate-400 hover:bg-slate-100 hover:text-red-600'
                   }`}

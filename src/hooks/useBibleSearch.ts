@@ -65,6 +65,7 @@ export const useBibleSearch = () => {
   const [historyRefreshTrigger, setHistoryRefreshTrigger] = useState(0);
   const [currentHistoryId, setCurrentHistoryId] = useState<number | null>(null);
   const [currentSearchId, setCurrentSearchId] = useState<number | null>(null);
+  const [voteStatus, setVoteStatus] = useState<'up' | 'down' | null>(null);
 
   const search = async (searchQuery: string) => {
     setQuery(searchQuery);
@@ -72,6 +73,7 @@ export const useBibleSearch = () => {
     setTranslatedError(null);
     setCurrentHistoryId(null);
     setCurrentSearchId(null);
+    setVoteStatus(null);
     setResults({ bible: [], commentary: [], llmResponse: '' });
 
     try {
@@ -316,6 +318,9 @@ export const useBibleSearch = () => {
       commentary_results?: string[];
       language?: string;
       settings?: any;
+      thumbs_up?: number | boolean;
+      thumbs_down?: number | boolean;
+      id?: number;
     },
     setLanguage?: (lang: 'en' | 'pl') => void
   ) => {
@@ -335,14 +340,18 @@ export const useBibleSearch = () => {
     if (historyItem.language && setLanguage) {
       setLanguage(historyItem.language as 'en' | 'pl');
     }
+
+    // Set vote status
+    let status: 'up' | 'down' | null = null;
+    if (historyItem.thumbs_up) status = 'up';
+    else if (historyItem.thumbs_down) status = 'down';
+    setVoteStatus(status);
     
     setTranslatedError(null);
     setLoading(false);
     
     setCurrentSearchId(null);
-    // @ts-ignore
     if (historyItem.id) {
-      // @ts-ignore
       setCurrentHistoryId(historyItem.id);
     }
   };
@@ -372,6 +381,9 @@ export const useBibleSearch = () => {
       if (data.historyId) {
         setCurrentHistoryId(data.historyId);
       }
+      
+      // Update local state to reflect vote
+      setVoteStatus(voteType);
 
     } catch (e) {
       console.error('Error voting:', e);
@@ -390,6 +402,7 @@ export const useBibleSearch = () => {
     loadFromHistory,
     historyRefreshTrigger,
     vote,
+    voteStatus,
     currentHistoryId
   };
 };
