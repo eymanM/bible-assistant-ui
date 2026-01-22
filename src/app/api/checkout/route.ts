@@ -16,7 +16,7 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: 'Server configuration error: Stripe key missing' }, { status: 500 });
     }
 
-    const { priceId, userId, email, credits } = await req.json();
+    const { priceId, userId, email, credits, locale } = await req.json();
 
     if (!priceId || !userId) {
       return NextResponse.json({ error: 'Missing parameters' }, { status: 400 });
@@ -30,7 +30,9 @@ export async function POST(req: NextRequest) {
     const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000';
 
     const session = await stripe.checkout.sessions.create({
-      payment_method_types: ['card'],
+      locale: locale === 'pl' ? 'pl' : 'en',
+      allow_promotion_codes: true,
+      payment_method_types: ['card', 'blik', 'p24'],
       line_items: [
         {
           price: priceId,
