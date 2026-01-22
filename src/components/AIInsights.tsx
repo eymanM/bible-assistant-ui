@@ -111,21 +111,16 @@ const AIInsights: React.FC<AIInsightsProps> = ({ content }) => {
         const Icon = style.icon;
         
         return (
-          <div 
-            key={idx} 
-            className="flex items-start gap-3 md:gap-4 group"
-          >
-            <div className={`p-2 rounded-lg md:p-2.5 md:rounded-xl ${style.iconBg} shrink-0 mt-0.5 transition-colors`}>
-              <Icon className={`w-4 h-4 md:w-5 md:h-5 ${style.iconColor}`} />
-            </div>
-            <div className="space-y-1.5 md:space-y-2 min-w-0 flex-1">
-              <h3 className={`font-semibold text-sm md:text-base ${style.iconColor}`}>
-                {section.title}
-              </h3>
-              <p className="text-slate-700 leading-relaxed text-sm md:text-base whitespace-pre-wrap break-words">
-                {section.body}
-              </p>
-            </div>
+          <div key={idx} className="group">
+            <h3 className={`flex items-center gap-2 font-semibold text-sm md:text-base ${style.iconColor} mb-2`}>
+              <span className={`p-1.5 rounded-lg ${style.iconBg} inline-flex items-center justify-center`}>
+                <Icon className={`w-3.5 h-3.5 md:w-4 md:h-4`} />
+              </span>
+              {section.title}
+            </h3>
+            <p className="text-slate-700 leading-relaxed text-sm md:text-base whitespace-pre-wrap break-words pl-0.5">
+              {section.body}
+            </p>
           </div>
         );
       })}
