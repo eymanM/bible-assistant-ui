@@ -1,6 +1,7 @@
 import React from 'react';
 import { Book, MessageCircle, Sparkles, BookOpen, ThumbsUp, ThumbsDown } from 'lucide-react';
 import SearchResultItem from './SearchResultItem';
+import AIInsights from './AIInsights';
 import { useLanguage } from '../lib/language-context';
 
 interface SearchResultsProps {
@@ -51,7 +52,7 @@ const SearchResults: React.FC<SearchResultsProps> = ({
             <h3 className="font-semibold text-indigo-900">{t.main.aiInsight}</h3>
           </div>
           <div className="p-6">
-            <p className="text-slate-700 leading-relaxed whitespace-pre-line">{llmResponse}</p>
+            <AIInsights content={llmResponse} />
             
             {onVote && (
               <div className="mt-6 flex items-center justify-end gap-2 pt-4 border-t border-indigo-50">
