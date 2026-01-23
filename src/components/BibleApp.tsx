@@ -41,7 +41,7 @@ const BibleApp: React.FC = () => {
         isOpen={isSidebarOpen}
         onClose={() => setIsSidebarOpen(false)}
         onLanguageChange={() => setQuery('')}
-        user={user}
+        user={user as any} // Cast to any to avoid strict type mismatch with AuthUser
         onLogout={logout}
       />
       
