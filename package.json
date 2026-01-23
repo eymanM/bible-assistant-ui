@@ -10,7 +10,8 @@
     "build": "next build",
     "start": "next start",
     "test": "jest",
-    "test:watch": "jest --watch"
+    "test:watch": "jest --watch",
+    "test:ci": "jest --ci --coverage"
   },
   "dependencies": {
     "@aws-amplify/ui-react": "^6.13.2",
