@@ -37,6 +37,7 @@ const SearchBar: React.FC<SearchBarProps> = ({ onSearch, disabled, showCreditsWa
     <div className="w-full max-w-3xl mx-auto transform transition-all hover:scale-[1.01]">
       <div className="relative flex items-center group">
         <input
+          aria-label={t.main.searchPlaceholder}
           type="text"
           value={query}
           onChange={(e) => {
