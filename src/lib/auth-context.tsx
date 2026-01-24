@@ -1,16 +1,8 @@
 'use client';
 
-import { Amplify } from 'aws-amplify';
-import { CookieStorage, Hub } from 'aws-amplify/utils';
 import React, { createContext, useContext, useEffect, useState } from 'react';
-import { getCurrentUser, signOut } from 'aws-amplify/auth';
+
 import type { AuthUser } from 'aws-amplify/auth';
-
-
-
-// Configure token storage to use cookies for SSR compatibility if needed, 
-// strictly speaking for client-side valid auth default is sufficient but specific cookie config helps next.js middleware.
-// For now, we'll stick to default storage to keep it simple unless we need middleware protection.
 
 interface AuthContextType {
   user: AuthUser | null;
@@ -29,49 +21,60 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const userPoolId = process.env.NEXT_PUBLIC_AWS_USER_POOLS_ID;
-    const clientId = process.env.NEXT_PUBLIC_AWS_USER_POOLS_WEB_CLIENT_ID;
+    const initAuth = async () => {
+        try {
+            const [{ Amplify }, { Hub }, { getCurrentUser }] = await Promise.all([
+              import('aws-amplify'),
+              import('aws-amplify/utils'),
+              import('aws-amplify/auth')
+            ]);
 
-    console.log("AuthContext: Configuring Amplify");
-    console.log("AuthContext: IDs ->", { 
-      poolId: userPoolId ? `...${userPoolId.slice(-4)}` : 'MISSING', 
-      clientId: clientId ? `...${clientId.slice(-4)}` : 'MISSING' 
-    });
+            const userPoolId = process.env.NEXT_PUBLIC_AWS_USER_POOLS_ID;
+            const clientId = process.env.NEXT_PUBLIC_AWS_USER_POOLS_WEB_CLIENT_ID;
 
-    try {
-      Amplify.configure({
-        Auth: {
-          Cognito: {
-            userPoolId: userPoolId!,
-            userPoolClientId: clientId!,
-          }
+            if (userPoolId && clientId) {
+                try {
+                Amplify.configure({
+                    Auth: {
+                    Cognito: {
+                        userPoolId,
+                        userPoolClientId: clientId,
+                    }
+                    }
+                });
+                console.log("AuthContext: Amplify configured successfully");
+                } catch (e) {
+                console.error("Amplify Config Error", e);
+                }
+            }
+
+            // Subscribe to auth events
+            const hubListenerCancel = Hub.listen('auth', (data) => {
+                switch (data.payload.event) {
+                case 'signedIn':
+                    checkUser(getCurrentUser);
+                    break;
+                case 'signedOut':
+                    setUser(null);
+                    break;
+                }
+            });
+
+            await checkUser(getCurrentUser);
+
+            return () => hubListenerCancel();
+        } catch (error) {
+            console.error("Failed to load Amplify:", error);
+            setLoading(false);
         }
-      });
-      console.log("AuthContext: Amplify configured successfully");
-    } catch (e) {
-      console.error("Amplify Config Error", e);
-    }
-    
-    // Subscribe to auth events
-    const hubListenerCancel = Hub.listen('auth', (data) => {
-      switch (data.payload.event) {
-        case 'signedIn':
-          checkUser();
-          break;
-        case 'signedOut':
-          setUser(null);
-          break;
-      }
-    });
-
-    checkUser();
-
-    return () => hubListenerCancel();
+    };
+    initAuth();
   }, []);
 
-  async function checkUser() {
+  async function checkUser(getCurrentUserFn?: () => Promise<AuthUser>) {
     try {
-      const currentUser = await getCurrentUser();
+      const getUser = getCurrentUserFn || (await import('aws-amplify/auth')).getCurrentUser;
+      const currentUser = await getUser();
       setUser(currentUser);
 
       // Sync user to DB
@@ -95,6 +98,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   async function logout() {
     try {
+      const { signOut } = await import('aws-amplify/auth');
       await signOut();
       setUser(null);
     } catch (error) {
