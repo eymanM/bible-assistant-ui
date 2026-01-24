@@ -251,57 +251,64 @@ export const useBibleSearch = () => {
 
       // Save to history if we have results and a user
       // Requirement: if AI insights is enabled but no response received, do not save
-      const shouldSave = hasResults && user?.userId && (!settings.insights || (settings.insights && tempResults.llmResponse));
-
-      if (shouldSave) {
-        try {
-          const historyRes = await fetch('/api/history', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-              userId: user.userId,
-              query: searchQuery,
-              response: tempResults.llmResponse,
-              bible_results: tempResults.bible,
-              commentary_results: tempResults.commentary,
-              language: language,
-              settings: settings
-            })
-          });
-          
-          if (historyRes.ok) {
-            const historyData = await historyRes.json();
-            if (historyData.entry && historyData.entry.id) {
-               setCurrentHistoryId(historyData.entry.id);
+      // Prepare parallel tasks for history saving and credit deduction
+      const historyTask = async () => {
+        const shouldSave = hasResults && user?.userId && (!settings.insights || (settings.insights && tempResults.llmResponse));
+        
+        if (shouldSave) {
+          try {
+            const historyRes = await fetch('/api/history', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({
+                userId: user.userId,
+                query: searchQuery,
+                response: tempResults.llmResponse,
+                bible_results: tempResults.bible,
+                commentary_results: tempResults.commentary,
+                language: language,
+                settings: settings
+              })
+            });
+            
+            if (historyRes.ok) {
+              const historyData = await historyRes.json();
+              if (historyData.entry && historyData.entry.id) {
+                 setCurrentHistoryId(historyData.entry.id);
+              }
             }
+  
+            // Trigger history refresh
+            setHistoryRefreshTrigger(prev => prev + 1);
+          } catch (e) {
+            console.error('Failed to save history:', e);
           }
-
-          // Trigger history refresh
-          setHistoryRefreshTrigger(prev => prev + 1);
-        } catch (e) {
-          console.error('Failed to save history:', e);
         }
-      }
+      };
 
-      // Only deduct credits if AI insights are enabled AND we got results AND no error occurred
-      if (settings.insights && hasResults && !hasError && user?.userId) {
-        try {
-          const deductRes = await fetch('/api/credits/deduct', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ userId: user.userId })
-          });
-
-          if (!deductRes.ok) {
-            const errorData = await deductRes.json();
-            // Silently log the error - don't show to user, don't block results
-            console.warn('Credit deduction failed:', errorData.error);
+      const creditsTask = async () => {
+        if (settings.insights && hasResults && !hasError && user?.userId) {
+          try {
+            const deductRes = await fetch('/api/credits/deduct', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ userId: user.userId })
+            });
+  
+            if (!deductRes.ok) {
+              const errorData = await deductRes.json();
+              // Silently log the error - don't show to user, don't block results
+              console.warn('Credit deduction failed:', errorData.error);
+            }
+          } catch (e) {
+            // Silently log any errors - don't interrupt user experience
+            console.warn('Credit deduction error:', e);
           }
-        } catch (e) {
-          // Silently log any errors - don't interrupt user experience
-          console.warn('Credit deduction error:', e);
         }
-      }
+      };
+
+      // Execute both side effects in parallel
+      await Promise.allSettled([historyTask(), creditsTask()]);
     } catch (err) {
       setTranslatedError(err instanceof Error ? err.message : 'An error occurred');
       console.error('Search error:', err);
