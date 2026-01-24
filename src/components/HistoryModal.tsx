@@ -155,8 +155,8 @@ export default function HistoryModal({ isOpen, onClose, onHistoryClick, refreshT
                 </div>
               ))}
               {loading && history.length > 0 && (
-                <div className="text-center py-4">
-                  <p className="text-sm text-slate-400">{t.sidebar.loading}</p>
+                <div className="flex justify-center py-4">
+                  <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-indigo-600"></div>
                 </div>
               )}
             </div>
