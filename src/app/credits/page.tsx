@@ -9,13 +9,6 @@ export const dynamic = 'force-dynamic';
 
 const stripePromise = null;
 
-// Moved data inside component or kept outside but keys need to match
-// For simplicity I replaced the usage to a local variable inside component in the previous step,
-// so I can delete this or just ignore it.
-// Actually, I should remove the old CREDIT_PACKAGES constant if I replaced usage.
-// But wait, the previous tool replaced the usage with CREDIT_PACKAGES_DATA defined INSIDE the component.
-// So this old const is dead code. I will remove it.
-
 type Currency = 'USD' | 'EUR' | 'PLN';
 
 function CreditsContent() {
@@ -196,7 +189,11 @@ function CreditsContent() {
 
 export default function CreditsPage() {
     return (
-        <Suspense fallback={<div>Loading credits...</div>}>
+        <Suspense fallback={
+            <div className="flex justify-center items-center min-h-[50vh]">
+                <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-indigo-600"></div>
+            </div>
+        }>
             <CreditsContent />
         </Suspense>
     );
