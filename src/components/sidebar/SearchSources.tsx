@@ -32,8 +32,8 @@ const SearchSources: React.FC<SearchSourcesProps> = ({ settings, setSettings }) 
 
   return (
     <>
-      <div className="mb-2 px-2">
-        <h2 className="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-4">
+      <div className="px-1 mb-3">
+        <h2 className="text-xs font-semibold text-slate-900 uppercase tracking-wider">
           {t.sidebar.searchSources}
         </h2>
       </div>
