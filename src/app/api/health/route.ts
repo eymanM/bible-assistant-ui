@@ -11,8 +11,23 @@ const stripe = process.env.STRIPE_SECRET_KEY
 
 export const dynamic = 'force-dynamic'; // Ensure this route is not statically cached
 
+interface HealthChecks {
+  database: 'healthy' | 'unhealthy' | 'unknown';
+  backend: string;
+  stripe: string;
+  cognito: string;
+  system: 'healthy' | 'unhealthy' | 'unknown' | 'error';
+}
+
+interface HealthStatus {
+  status: 'healthy' | 'degraded' | 'critical_failure' | 'starting';
+  timestamp: string;
+  checks: HealthChecks;
+  error?: string;
+}
+
 export async function GET() {
-  const status: any = {
+  const status: HealthStatus = {
     status: 'starting',
     timestamp: new Date().toISOString(),
     checks: {
@@ -42,26 +57,26 @@ export async function GET() {
         signal: AbortSignal.timeout(3000)
       });
       
-      if (backendRes.ok || backendRes.status === 404) {
+      if (backendRes.ok) {
         status.checks.backend = 'healthy';
       } else {
         status.checks.backend = `unhealthy (status: ${backendRes.status})`;
       }
     } catch (apiError) {
-      // console.error('Backend health check failed:', apiError); 
-      // Keep silent logs for expected failures in dev if backend is down
+      // In development, backend failures may be expected
+      if (process.env.NODE_ENV !== 'development') {
+        console.error('Backend health check failed:', apiError);
+      }
       status.checks.backend = 'unhealthy';
     }
 
     // 3. Check Stripe
     if (stripe) {
       try {
-        if (process.env.STRIPE_SECRET_KEY?.startsWith('sk_')) {
-           status.checks.stripe = 'healthy (configured)';
-        } else {
-           status.checks.stripe = 'unhealthy (invalid key format)';
-        }
+        await stripe.balance.retrieve();
+        status.checks.stripe = 'healthy';
       } catch (stripeErr) {
+        console.error('Stripe health check failed:', stripeErr);
         status.checks.stripe = 'unhealthy';
       }
     } else {
@@ -89,16 +104,12 @@ export async function GET() {
 
     // 5. System Resources
     try {
-      const freeMem = os.freemem();
-      const totalMem = os.totalmem();
-      const memUsage = ((totalMem - freeMem) / totalMem * 100).toFixed(2);
-      
-      status.checks.system = {
-        memoryUsage: `${memUsage}%`,
-        freeMemory: `${Math.round(freeMem / 1024 / 1024)}MB`,
-        uptime: `${Math.round(os.uptime())}s`
-      };
-    } catch (sysErr) {
+      // Lightweight check to ensure process can access system info
+      void os.freemem();
+      void os.totalmem();
+      void os.uptime();
+      status.checks.system = 'healthy';
+    } catch (systemError) {
       status.checks.system = 'error';
     }
 
