@@ -9,7 +9,7 @@ function delay(ms: number) {
 export async function POST(req: NextRequest) {
   try {
     const body = await req.json();
-    const { query, settings } = body;
+    const { query, settings, userId } = body;
 
     // 1. Attempt to find cached result
     if (query && settings) {
@@ -19,6 +19,7 @@ export async function POST(req: NextRequest) {
         // Fetch matching result directly from DB using JSONB containment
         // Filter out results where aggregate thumbs_down > thumbs_up
         // Use COALESCE to handle cases with no user_searches entries yet
+        // NEW: Filter out results that THIS user has already seen/generated (present in user_searches)
         const result = await pool.query(
           `SELECT s.*, 
                   COALESCE(SUM(CASE WHEN us.thumbs_up THEN 1 ELSE 0 END), 0) as up_votes,
@@ -28,11 +29,16 @@ export async function POST(req: NextRequest) {
            WHERE s.query = $1 
            AND s.language = $2 
            AND s.settings @> $3::jsonb
+           AND NOT EXISTS (
+             SELECT 1 FROM bible_assistant.user_searches my_us 
+             WHERE my_us.search_id = s.id 
+             AND my_us.user_id = $4
+           )
            GROUP BY s.id
            HAVING COALESCE(SUM(CASE WHEN us.thumbs_down THEN 1 ELSE 0 END), 0) <= COALESCE(SUM(CASE WHEN us.thumbs_up THEN 1 ELSE 0 END), 0)
            ORDER BY s.created_at DESC 
            LIMIT 1`,
-          [query, language || 'en', JSON.stringify(querySettings)]
+          [query, language || 'en', JSON.stringify(querySettings), userId || null]
         );
 
         const match = result.rows[0];
