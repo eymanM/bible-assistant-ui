@@ -15,7 +15,9 @@ export const pl: Translation = {
     aboutProject: 'O Projekcie',
     english: 'English',
     polish: 'Polski',
-    loading: 'Ładowanie...'
+    loading: 'Ładowanie...',
+    library: 'Biblioteka',
+    media: 'Powiązane Media'
   },
   main: {
     discover: 'Odkrywaj',
@@ -70,19 +72,57 @@ export const pl: Translation = {
     noTransactions: 'Nie znaleziono transakcji'
   },
   about: {
-    title: 'O Asystencie Biblijnym',
-    description: 'Asystent Biblijny to zaawansowane narzędzie do studiowania Biblii oparte na sztucznej inteligencji, zaprojektowane w celu zapewnienia głębszych spostrzeżeń w Pismo Święte poprzez nowoczesną technologię. Łączy tradycyjne metody studiowania z najnowocześniejszą sztuczną inteligencją, oferując kontekst, komentarze i semantyczne możliwości wyszukiwania.',
-    technicalImplementation: 'Implementacja Techniczna',
-    frontend: 'Frontend',
-    frontendDesc: 'Zbudowany z Next.js 16, React 19 i TailwindCSS dla responsywnego, wydajnego interfejsu użytkownika.',
-    backendAI: 'Backend i AI',
-    backendDesc: 'Serwer Python zasilający zaawansowane wyszukiwanie wektorowe i integrację LLM dla semantycznego rozumienia.',
-    authCloud: 'Autentykacja i Chmura',
-    authDesc: 'Bezpieczna autentykacja przez AWS Cognito i infrastruktura chmurowa na AWS.',
-    payments: 'Płatności',
-    paymentsDesc: 'Zintegrowane przetwarzanie płatności Stripe do zarządzania kredytami i funkcjami premium.',
-    createdBy: 'Stworzony przez Mateusz • 2026',
-    createdDesc: 'Zaprojektowany i zbudowany z pasją do studiowania Pisma.'
+    title: 'O Nas',
+    subtitle: 'Historia i misja Bible AI',
+    missionTitle: 'Usługi skoncentrowane na Biblii',
+    missionText: 'Naszym celem jest uczynienie Pisma Świętego dostępnym i zrozumiałym dla każdego. Dostarczamy narzędzia, które pomagają głębiej angażować się w Biblię, wspierając Twój rozwój duchowy nowoczesną technologią.',
+    stats: {
+        years: '2026',
+        yearsDesc: 'Uruchomienie',
+        qa: 'AI',
+        qaDesc: 'Inteligentne Analizy',
+        accuracy: 'Top',
+        accuracyDesc: 'Trafność'
+    },
+    toolsTitle: 'Projekt Skupiony na Piśmie',
+    toolsText: 'Stawiamy tekst biblijny na pierwszym miejscu. Nasz interfejs został zaprojektowany do czytania i studiowania bez rozpraszaczy, z funkcjami AI, które wspierają osobistą refleksję.',
+    charityText: 'Jesteśmy oddani tworzeniu godnych zaufania zasobów cyfrowych, które promują wiedzę biblijną i zrozumienie teologiczne.',
+    accessibilityTitle: 'Dostępność dla Wszystkich',
+    accessibilityText: 'Wierzymy, że technologia powinna usuwać bariery. Nasza platforma jest budowana tak, aby być inkluzywną i wspierać różne standardy dostępności, zapewniając każdemu możliwość korzystania z naszych narzędzi.'
+  },
+  contact: {
+    title: 'Kontakt',
+    subtitle: 'Jesteśmy tutaj, aby pomóc i słuchać.',
+    feedbackTitle: 'Twoja Opinia jest Ważna',
+    feedbackText: 'Tworzymy społeczność uczących się. Jeśli masz sugestie, pomysły na nowe funkcje lub napotkasz problemy, daj nam znać. Twój wygłos pomaga nam się rozwijać.',
+    emailSupport: 'Wsparcie',
+    emailDesc: 'Staramy się odpowiadać w jeden dzień roboczy.',
+    socialCommunity: 'Społeczność',
+    socialDesc: 'Dołącz do dyskusji online.',
+    office: 'Siedziba',
+    faqTitle: 'FAQ',
+    faq: {
+       free: { question: 'Czy to darmowe?', answer: 'Podstawowe funkcje są dostępne za darmo.' },
+       versions: { question: 'Dostępne Tłumaczenia?', answer: 'Obsługujemy szereg standardowych przekładów biblijnych.' }
+    }
+  },
+   privacy: {
+    title: 'Polityka Prywatności',
+    subtitle: 'Dbamy o Twoją prywatność i dane.',
+    introTitle: '1. Wstęp',
+    introText: 'Szanujemy Twoją prywatność i zobowiązujemy się do ochrony Twoich danych osobowych.',
+    dataCollectTitle: '2. Dane, które zbieramy',
+    dataCollectText: 'Możemy zbierać Dane Tożsamości, Dane Kontaktowe oraz Dane o Użyciu.',
+    dataUseTitle: '3. Jak wykorzystujemy Twoje dane',
+    dataUseList: [
+        'Aby świadczyć usługę',
+        'Aby ulepszać naszą usługę',
+        'Aby komunikować się z Tobą'
+    ],
+    securityTitle: '4. Bezpieczeństwo Danych',
+    securityText: 'Wdrożyliśmy odpowiednie środki bezpieczeństwa, aby zapobiec przypadkowej utracie danych.',
+    contactTitle: '5. Skontaktuj się z nami',
+    contactText: 'Jeśli masz pytania dotyczące tej polityki, skontaktuj się z nami.'
   },
   history: {
     title: 'Historia Wyszukiwań',
@@ -112,5 +152,16 @@ export const pl: Translation = {
     loginRequired: 'Proszę się zalogować',
     paymentFailed: 'Błąd płatności',
     creditsWord: 'Kredytów'
+  },
+  footer: {
+    about: 'O nas',
+    contact: 'Kontakt',
+    privacy: 'Polityka Prywatności',
+    rights: 'Wszelkie prawa zastrzeżone.'
+  },
+  cookies: {
+    text: 'Ta strona używa plików cookie, aby zapewnić poprawne działanie i bezpieczeństwo.',
+    accept: 'Rozumiem',
+    privacyPolicy: 'Polityka Prywatności'
   }
 };

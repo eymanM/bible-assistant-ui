@@ -14,6 +14,8 @@ export interface Translation {
     english: string;
     polish: string;
     loading: string;
+    library: string;
+    media: string;
   };
   main: {
     discover: string;
@@ -63,18 +65,52 @@ export interface Translation {
   };
   about: {
     title: string;
-    description: string;
-    technicalImplementation: string;
-    frontend: string;
-    frontendDesc: string;
-    backendAI: string;
-    backendDesc: string;
-    authCloud: string;
-    authDesc: string;
-    payments: string;
-    paymentsDesc: string;
-    createdBy: string;
-    createdDesc: string;
+    subtitle: string;
+    missionTitle: string;
+    missionText: string;
+    stats: {
+        years: string;
+        yearsDesc: string;
+        qa: string;
+        qaDesc: string;
+        accuracy: string;
+        accuracyDesc: string;
+    };
+    toolsTitle: string;
+    toolsText: string;
+    charityText: string;
+    accessibilityTitle: string;
+    accessibilityText: string;
+  };
+  contact: {
+    title: string;
+    subtitle: string;
+    feedbackTitle: string;
+    feedbackText: string;
+    emailSupport: string;
+    emailDesc: string;
+    socialCommunity: string;
+    socialDesc: string;
+    office: string;
+    faqTitle: string;
+    faq: {
+       free: { question: string; answer: string; };
+       versions: { question: string; answer: string; };
+    };
+  };
+  privacy: {
+    title: string;
+    subtitle: string;
+    introTitle: string;
+    introText: string;
+    dataCollectTitle: string;
+    dataCollectText: string;
+    dataUseTitle: string;
+    dataUseList: string[];
+    securityTitle: string;
+    securityText: string;
+    contactTitle: string;
+    contactText: string;
   };
   history: {
     title: string;
@@ -103,7 +139,18 @@ export interface Translation {
     buyNow: string;
     loginRequired: string;
     paymentFailed: string;
-    creditsWord: string; // e.g. "Credits" or "Kredytów"
+    creditsWord: string;
+  };
+  footer: {
+    about: string;
+    contact: string;
+    privacy: string;
+    rights: string;
+  };
+  cookies: {
+    text: string;
+    accept: string;
+    privacyPolicy: string;
   };
 }
 

@@ -15,7 +15,9 @@ export const en: Translation = {
     aboutProject: 'About Project',
     english: 'English',
     polish: 'Polski',
-    loading: 'Loading...'
+    loading: 'Loading...',
+    library: 'Library',
+    media: 'Related Media'
   },
   main: {
     discover: 'Discover',
@@ -71,18 +73,56 @@ export const en: Translation = {
   },
   about: {
     title: 'About Bible Assistant',
-    description: 'Bible Assistant is an advanced AI-powered Bible study tool designed to provide deeper insights into scripture through modern technology. It combines traditional study methods with cutting-edge artificial intelligence to offer context, commentary, and semantic search capabilities.',
-    technicalImplementation: 'Technical Implementation',
-    frontend: 'Frontend',
-    frontendDesc: 'Built with Next.js 16, React 19, and TailwindCSS for a responsive, performant user interface.',
-    backendAI: 'Backend & AI',
-    backendDesc: 'Python server powering advanced vector search and LLM integration for semantic understanding.',
-    authCloud: 'Auth & Cloud',
-    authDesc: 'Secure authentication via AWS Cognito and cloud infrastructure on AWS.',
-    payments: 'Payments',
-    paymentsDesc: 'Integrated Stripe payment processing for credit management and premium features.',
-    createdBy: 'Created by Mateusz • 2026',
-    createdDesc: 'Designed and built with passion for scripture study.'
+    subtitle: 'History & Mission of Bible AI',
+    missionTitle: 'Bible-Centric Services',
+    missionText: 'Our goal is to make Scripture accessible and understandable for everyone. We provide tools that help you engage deeply with the Bible, supporting your spiritual growth with modern technology.',
+    stats: {
+        years: '2026',
+        yearsDesc: 'Launched',
+        qa: 'AI',
+        qaDesc: 'Smart Insights',
+        accuracy: 'Top',
+        accuracyDesc: 'Relevance'
+    },
+    toolsTitle: 'Scripture-Focused Design',
+    toolsText: 'We prioritize the biblical text above all else. Our interface is designed for distraction-free reading and study, with AI features that support rather than replace personal reflection.',
+    charityText: 'We are dedicated to building trustworthy digital resources that favor Bible literacy and theological understanding.',
+    accessibilityTitle: 'Accessible to All',
+    accessibilityText: 'We believe technology should remove barriers. Our platform is built to be inclusive, supporting various accessibility standards to ensure everyone can use our tools effectively.'
+  },
+  contact: {
+    title: 'Contact Us',
+    subtitle: 'We are here to help and listen.',
+    feedbackTitle: 'Your Feedback Matters',
+    feedbackText: 'We represent a community of learners. If you have suggestions, feature requests, or encounter any issues, please let us know. Your input helps us improve.',
+    emailSupport: 'Support',
+    emailDesc: 'We aim to reply within one business day.',
+    socialCommunity: 'Community',
+    socialDesc: 'Join the conversation online.',
+    office: 'Headquarters',
+    faqTitle: 'FAQ',
+    faq: {
+       free: { question: 'Is it free?', answer: 'The core experience is free for all users.' },
+       versions: { question: 'Available Translations?', answer: 'Access a wide range of standard Bible translations.' }
+    }
+  },
+  privacy: {
+    title: 'Privacy Policy',
+    subtitle: 'Protecting your data and privacy.',
+    introTitle: '1. Introduction',
+    introText: 'We respect your privacy and are committed to protecting your personal data. This policy informs you how we look after your data.',
+    dataCollectTitle: '2. Data We Collect',
+    dataCollectText: 'We may collect Identity Data (name), Contact Data (email), and Usage Data (how you use our tools).',
+    dataUseTitle: '3. How We Use Data',
+    dataUseList: [
+        'To Provide the Service',
+        'To Improve Our Service',
+        'To Communicate with You'
+    ],
+    securityTitle: '4. Data Security',
+    securityText: 'We have put in place appropriate security measures to prevent your personal data from being accidentally lost or used in an unauthorized way.',
+    contactTitle: '5. Contact Us',
+    contactText: 'If you have questions about this policy, please contact us.'
   },
   history: {
     title: 'Search History',
@@ -112,5 +152,16 @@ export const en: Translation = {
     loginRequired: 'Please log in first',
     paymentFailed: 'Payment failed',
     creditsWord: 'Credits'
+  },
+  footer: {
+    about: 'About',
+    contact: 'Contact',
+    privacy: 'Privacy Policy',
+    rights: 'All rights reserved.'
+  },
+  cookies: {
+    text: 'This website uses cookies to enhance your experience and secure authentication.',
+    accept: 'Got it',
+    privacyPolicy: 'Privacy Policy'
   }
 };
