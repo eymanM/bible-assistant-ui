@@ -35,55 +35,31 @@ export default function AboutModal({ isOpen, onClose }: AboutModalProps) {
         {/* Content */}
         <div className="p-6 md:p-8 max-h-[80vh] overflow-y-auto">
           <p className="text-slate-600 mb-8 leading-relaxed">
-            {t.about.description}
+            {t.about.missionText}
           </p>
 
-          <h3 className="text-sm font-semibold text-slate-900 uppercase tracking-wider mb-4 border-b border-slate-100 pb-2">{t.about.technicalImplementation}</h3>
+          <h3 className="text-sm font-semibold text-slate-900 uppercase tracking-wider mb-4 border-b border-slate-100 pb-2">{t.about.subtitle}</h3>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div className="p-4 rounded-xl bg-slate-50 border border-slate-100 hover:border-indigo-100 hover:shadow-sm transition-all">
-              <div className="flex items-center gap-3 mb-2">
-                <div className="p-2 bg-blue-100 text-blue-600 rounded-lg">
-                  <Code2 size={18} />
-                </div>
-                <h4 className="font-semibold text-slate-800">{t.about.frontend}</h4>
-              </div>
-              <p className="text-xs text-slate-500">{t.about.frontendDesc}</p>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div className="p-4 rounded-xl bg-slate-50 border border-slate-100 text-center">
+              <div className="text-2xl font-bold text-indigo-600 mb-1">{t.about.stats.years}</div>
+              <p className="text-xs text-slate-500">{t.about.stats.yearsDesc}</p>
             </div>
 
-            <div className="p-4 rounded-xl bg-slate-50 border border-slate-100 hover:border-indigo-100 hover:shadow-sm transition-all">
-              <div className="flex items-center gap-3 mb-2">
-                <div className="p-2 bg-orange-100 text-orange-600 rounded-lg">
-                  <Server size={18} />
-                </div>
-                <h4 className="font-semibold text-slate-800">{t.about.backendAI}</h4>
-              </div>
-              <p className="text-xs text-slate-500">{t.about.backendDesc}</p>
+            <div className="p-4 rounded-xl bg-slate-50 border border-slate-100 text-center">
+               <div className="text-2xl font-bold text-indigo-600 mb-1">{t.about.stats.qa}</div>
+               <p className="text-xs text-slate-500">{t.about.stats.qaDesc}</p>
             </div>
 
-            <div className="p-4 rounded-xl bg-slate-50 border border-slate-100 hover:border-indigo-100 hover:shadow-sm transition-all">
-              <div className="flex items-center gap-3 mb-2">
-                <div className="p-2 bg-green-100 text-green-600 rounded-lg">
-                   <Shield size={18} />
-                </div>
-                <h4 className="font-semibold text-slate-800">{t.about.authCloud}</h4>
-              </div>
-              <p className="text-xs text-slate-500">{t.about.authDesc}</p>
-            </div>
-             
-             <div className="p-4 rounded-xl bg-slate-50 border border-slate-100 hover:border-indigo-100 hover:shadow-sm transition-all">
-              <div className="flex items-center gap-3 mb-2">
-                <div className="p-2 bg-purple-100 text-purple-600 rounded-lg">
-                   <CreditCard size={18} />
-                </div>
-                <h4 className="font-semibold text-slate-800">{t.about.payments}</h4>
-              </div>
-               <p className="text-xs text-slate-500">{t.about.paymentsDesc}</p>
+            <div className="p-4 rounded-xl bg-slate-50 border border-slate-100 text-center">
+               <div className="text-2xl font-bold text-indigo-600 mb-1">{t.about.stats.accuracy}</div>
+               <p className="text-xs text-slate-500">{t.about.stats.accuracyDesc}</p>
             </div>
           </div>          
+           
            <div className="mt-8 pt-6 border-t border-slate-100 text-center">
               <p className="text-xs text-slate-400">
-                {t.about.createdBy}
+                {t.footer.rights}
               </p>
            </div>
         </div>
