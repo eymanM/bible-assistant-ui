@@ -2,10 +2,17 @@
 
 import React from 'react';
 import SearchBar from './SearchBar';
+import MotionWrapper from './MotionWrapper';
 import Sidebar from './Sidebar';
-import SearchResults from './SearchResults';
+import Footer from './Footer';
 import { useBibleSearch } from '../hooks/useBibleSearch';
 import { useLanguage } from '../lib/language-context';
+import dynamic from 'next/dynamic';
+
+const SearchResults = dynamic(() => import('./SearchResults'), {
+  loading: () => <div className="animate-pulse h-96 bg-slate-100 rounded-2xl mx-auto max-w-4xl" />,
+  ssr: false
+});
 
 import { useAuth } from '../lib/auth-context';
 import Link from 'next/link';
@@ -45,7 +52,7 @@ const BibleApp: React.FC = () => {
         onLogout={logout}
       />
       
-      <main className="flex-1 w-full max-w-[1600px] mx-auto min-w-0">
+      <main className="flex-1 w-full max-w-[1600px] mx-auto min-w-0 flex flex-col">
         <header className="sticky top-0 z-30 glass px-4 md:px-8 py-4 mb-8 flex items-center justify-between">
           <div className="flex items-center gap-3">
             <button 
@@ -57,7 +64,7 @@ const BibleApp: React.FC = () => {
             </button>
             <div className="flex flex-col">
                <h1 className="text-xl md:text-2xl font-bold text-slate-900 tracking-tight">{t.main.discover}</h1>
-               <p className="text-xs md:text-sm text-slate-500 hidden sm:block">{t.main.subtitle}</p>
+               <p className="text-xs md:text-sm text-slate-600 hidden sm:block">{t.main.subtitle}</p>
             </div>
           </div>
 
@@ -95,54 +102,56 @@ const BibleApp: React.FC = () => {
           </div>
         </header>
         
-        <div className="px-4 md:px-8 pb-12">
-          <div className="max-w-4xl mx-auto space-y-6 md:space-y-8">
-            <div className="text-center py-6 md:py-10">
-               <h2 className="text-3xl md:text-4xl font-extrabold text-slate-900 mb-4 tracking-tight">{t.main.whatWouldYouLikeToExplore}</h2>
-               <p className="text-base md:text-lg text-slate-500 max-w-2xl mx-auto mb-8 px-2">
-                 {t.main.searchDescription}
-               </p>
-
-               {!searchLoading && !results.bible.length && !results.commentary.length && !results.llmResponse && (
-                 <div className="flex flex-wrap items-center justify-center gap-2 max-w-2xl mx-auto mb-8 animate-in fade-in slide-in-from-bottom-4 duration-500">
-                   {t.main.exampleQueries.map((suggestion) => (
-                     <button
-                       key={suggestion}
-                       onClick={() => search(suggestion)}
-                       disabled={!user}
-                       className="px-3 py-1.5 md:px-4 md:py-2 text-xs md:text-sm bg-white border border-slate-200 text-slate-600 rounded-full hover:border-indigo-300 hover:text-indigo-600 hover:bg-indigo-50 transition-all shadow-sm active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed"
-                     >
-                       {suggestion}
-                     </button>
-                   ))}
-                 </div>
-               )}
+        <div className="px-4 md:px-8 pb-12 flex-1">
+            <div className="max-w-4xl mx-auto space-y-6 md:space-y-8">
+              <div className="text-center py-6 md:py-10">
+                 <h2 className="text-3xl md:text-4xl font-extrabold text-slate-900 mb-4 tracking-tight">{t.main.whatWouldYouLikeToExplore}</h2>
+                 <p className="text-base md:text-lg text-slate-600 max-w-2xl mx-auto mb-8 px-2">
+                   {t.main.searchDescription}
+                 </p>
+  
+                 {!searchLoading && !results.bible.length && !results.commentary.length && !results.llmResponse && (
+                   <div className="flex flex-wrap items-center justify-center gap-2 max-w-2xl mx-auto mb-8 animate-in fade-in slide-in-from-bottom-4 duration-500">
+                     {t.main.exampleQueries.map((suggestion) => (
+                       <button
+                         key={suggestion}
+                         onClick={() => search(suggestion)}
+                         disabled={!user}
+                         className="px-3 py-1.5 md:px-4 md:py-2 text-xs md:text-sm bg-white border border-slate-200 text-slate-600 rounded-full hover:border-indigo-300 hover:text-indigo-600 hover:bg-indigo-50 transition-all shadow-sm active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed"
+                       >
+                         {suggestion}
+                       </button>
+                     ))}
+                   </div>
+                 )}
+              </div>
+  
+              <SearchBar onSearch={search} disabled={!user} showCreditsWarning={settings.insights} currentQuery={query} />
+              
+              {searchLoading && (
+                <div className="flex justify-center py-12">
+                   <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-indigo-600"></div>
+                </div>
+              )}
+              
+              {error && (
+                <div className="bg-red-50 border border-red-200 text-red-600 px-4 py-3 rounded-xl text-center">
+                  {error}
+                </div>
+              )}
+              
+              <SearchResults 
+                query={query} 
+                bibleResults={results.bible} 
+                commentaryResults={results.commentary} 
+                llmResponse={results.llmResponse} 
+                onVote={vote}
+                voteStatus={voteStatus}
+                settings={settings}
+              />
             </div>
-
-            <SearchBar onSearch={search} disabled={!user} showCreditsWarning={settings.insights} currentQuery={query} />
-            
-            {searchLoading && (
-              <div className="flex justify-center py-12">
-                 <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-indigo-600"></div>
-              </div>
-            )}
-            
-            {error && (
-              <div className="bg-red-50 border border-red-200 text-red-600 px-4 py-3 rounded-xl text-center">
-                {error}
-              </div>
-            )}
-            
-            <SearchResults 
-              query={query} 
-              bibleResults={results.bible} 
-              commentaryResults={results.commentary} 
-              llmResponse={results.llmResponse} 
-              onVote={vote}
-              voteStatus={voteStatus}
-            />
-          </div>
         </div>
+        <Footer />
       </main>
     </div>
   );
