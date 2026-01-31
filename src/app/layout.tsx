@@ -4,6 +4,7 @@ import './globals.css';
 import { AuthProvider } from '@/lib/auth-context';
 import { LanguageProvider } from '@/lib/language-context';
 import CookieConsent from '@/components/CookieConsent';
+import QueryProvider from '@/providers/QueryProvider';
 
 const inter = Inter({ subsets: ['latin'] });
 
@@ -76,10 +77,12 @@ export default function RootLayout({
     <html lang="en" suppressHydrationWarning>
       <body className={inter.className} suppressHydrationWarning>
         <AuthProvider>
-          <LanguageProvider>
-            <div className="min-h-screen bg-gray-50">{children}</div>
-            <CookieConsent />
-          </LanguageProvider>
+          <QueryProvider>
+            <LanguageProvider>
+              <div className="min-h-screen bg-gray-50">{children}</div>
+              <CookieConsent />
+            </LanguageProvider>
+          </QueryProvider>
         </AuthProvider>
       </body>
     </html>
