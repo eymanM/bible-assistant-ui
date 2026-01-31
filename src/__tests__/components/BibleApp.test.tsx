@@ -27,6 +27,7 @@ describe('BibleApp Component', () => {
       newTestament: true,
       commentary: false,
       insights: true,
+      media: true,
     },
     setSettings: mockSetSettings,
     results: {
