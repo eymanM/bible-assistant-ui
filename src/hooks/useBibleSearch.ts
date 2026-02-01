@@ -8,6 +8,7 @@ interface BibleSearchSettings {
   newTestament: boolean;
   commentary: boolean;
   insights: boolean;
+  media: boolean;
 }
 
 interface SearchResponse {
@@ -22,7 +23,8 @@ export const useBibleSearch = () => {
     oldTestament: true,
     newTestament: true,
     commentary: false,
-    insights: true
+    insights: true,
+    media: false
   });
   const { language, t } = useLanguage();
   const [results, setResults] = useState<{
@@ -104,12 +106,14 @@ export const useBibleSearch = () => {
         },
         body: JSON.stringify({ 
           query: searchQuery,
+          userId: user?.userId,  // Pass userId to allow backend to skip cache for this user
           settings: {
             ...settings,
             language
           }
         }),
       });
+
 
       if (!response.ok) {
         throw new Error('Network response was not ok');

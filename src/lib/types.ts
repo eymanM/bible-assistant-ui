@@ -61,6 +61,7 @@ export interface Translation {
     credits: string;
     status: string;
     completed: string;
+    canceled: string;
     noTransactions: string;
   };
   about: {
