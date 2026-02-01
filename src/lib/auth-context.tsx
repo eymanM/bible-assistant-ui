@@ -6,18 +6,21 @@ import type { AuthUser } from 'aws-amplify/auth';
 
 interface AuthContextType {
   user: AuthUser | null;
+  dbUser: any | null;
   loading: boolean;
   logout: () => Promise<void>;
 }
 
 const AuthContext = createContext<AuthContextType>({
   user: null,
+  dbUser: null,
   loading: true,
   logout: async () => {},
 });
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [user, setUser] = useState<AuthUser | null>(null);
+  const [dbUser, setDbUser] = useState<any | null>(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -79,14 +82,22 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
       // Sync user to DB
       if (currentUser?.userId && currentUser?.signInDetails?.loginId) {
-        fetch('/api/user/sync', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            userId: currentUser.userId,
-            email: currentUser.signInDetails.loginId
-          })
-        }).catch(err => console.error('Failed to sync user to DB:', err));
+        try {
+          const res = await fetch('/api/user/sync', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              userId: currentUser.userId,
+              email: currentUser.signInDetails.loginId
+            })
+          });
+          if (res.ok) {
+            const data = await res.json();
+            setDbUser(data.user);
+          }
+        } catch (err) {
+            console.error('Failed to sync user to DB:', err);
+        }
       }
 
     } catch (error) {
@@ -100,14 +111,16 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     try {
       const { signOut } = await import('aws-amplify/auth');
       await signOut();
+      await signOut();
       setUser(null);
+      setDbUser(null);
     } catch (error) {
       console.error('Error signing out:', error);
     }
   }
 
   return (
-    <AuthContext.Provider value={{ user, loading, logout }}>
+    <AuthContext.Provider value={{ user, dbUser, loading, logout }}>
       {children}
     </AuthContext.Provider>
   );

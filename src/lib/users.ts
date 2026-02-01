@@ -6,6 +6,7 @@ export interface User {
   email: string | null;
   credits: number;
   created_at: Date;
+  settings: any;
 }
 
 export async function getUserByCognitoSub(cognitoSub: string): Promise<User | null> {
@@ -46,6 +47,17 @@ export async function deductCredits(cognitoSub: string, amount: number): Promise
     [cognitoSub, amount]
   );
   return res.rows[0] || null;
+}
+
+export async function updateUserSettings(cognitoSub: string, settings: any): Promise<User> {
+  const res = await pool.query(
+    `UPDATE bible_assistant.users
+     SET settings = $2, updated_at = CURRENT_TIMESTAMP
+     WHERE cognito_sub = $1
+     RETURNING *`,
+    [cognitoSub, settings]
+  );
+  return res.rows[0];
 }
 
 export async function getOrCreateUser(cognitoSub: string, email: string): Promise<User> {

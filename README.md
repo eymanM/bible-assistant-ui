@@ -58,7 +58,6 @@ Follow these instructions to set up the project locally.
    NEXT_PUBLIC_API_DOMAIN=http://localhost:5000
    NEXT_PUBLIC_AWS_USER_POOLS_ID=us-east-1_lB..
    NEXT_PUBLIC_AWS_USER_POOLS_WEB_CLIENT_ID=157nas...
-   NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY=pk_test_5...
    STRIPE_WEBHOOK_SECRET=whsec_ac..
    STRIPE_SECRET_KEY=sk_test_51S..
    DATABASE_URL=postgres://postgres:password@localhost:5432/postgres
