@@ -69,6 +69,7 @@ export const pl: Translation = {
     credits: 'Kredyty',
     status: 'Status',
     completed: 'Zakończone',
+    canceled: 'Anulowane',
     noTransactions: 'Nie znaleziono transakcji'
   },
   about: {

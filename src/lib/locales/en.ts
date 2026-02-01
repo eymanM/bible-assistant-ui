@@ -69,6 +69,7 @@ export const en: Translation = {
     credits: 'Credits',
     status: 'Status',
     completed: 'Completed',
+    canceled: 'Canceled',
     noTransactions: 'No transactions found'
   },
   about: {
