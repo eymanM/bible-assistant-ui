@@ -146,6 +146,29 @@ DROP TABLE bible_assistant.search_history;
 
 ALTER TABLE bible_assistant.searches
   DROP CONSTRAINT IF EXISTS unique_search_content;
+
+CREATE TABLE IF NOT EXISTS media_cache (
+  query TEXT NOT NULL,
+  lang VARCHAR(10) NOT NULL DEFAULT 'en',
+  data JSONB NOT NULL,
+  created_at TIMESTAMP DEFAULT NOW(),
+  PRIMARY KEY (query, lang)
+);
+
+ALTER TABLE bible_assistant.users 
+ADD COLUMN settings JSONB DEFAULT '{}'::jsonb;
+
+CREATE TABLE IF NOT EXISTS user_daily_usage (
+    user_id TEXT NOT NULL,
+    day DATE NOT NULL DEFAULT CURRENT_DATE,
+    media_search_count INTEGER DEFAULT 0,
+    general_count INTEGER DEFAULT 0,
+    updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+    PRIMARY KEY (user_id, day)
+);
+
+CREATE INDEX IF NOT EXISTS idx_user_daily_usage_day ON user_daily_usage(day);
+
 `;
 
 async function setup() {
