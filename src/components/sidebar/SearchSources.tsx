@@ -1,7 +1,7 @@
 'use client';
 
 import React from 'react';
-import { MessageSquareText, BookOpen, Scroll, Lightbulb, Check } from 'lucide-react';
+import { MessageSquareText, BookOpen, Scroll, Lightbulb, Check, MonitorPlay } from 'lucide-react';
 import { useLanguage } from '@/lib/language-context';
 
 interface Settings {
@@ -9,6 +9,7 @@ interface Settings {
   newTestament: boolean;
   commentary: boolean;
   insights: boolean;
+  media: boolean;
 }
 
 interface SearchSourcesProps {
@@ -28,6 +29,7 @@ const SearchSources: React.FC<SearchSourcesProps> = ({ settings, setSettings }) 
     { key: 'oldTestament', label: t.sidebar.oldTestament, icon: Scroll },
     { key: 'newTestament', label: t.sidebar.newTestament, icon: BookOpen },
     { key: 'commentary', label: t.sidebar.commentary, icon: MessageSquareText },
+    { key: 'media', label: t.sidebar.media, icon: MonitorPlay },
   ];
 
   return (
