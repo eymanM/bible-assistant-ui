@@ -17,7 +17,8 @@ export const pl: Translation = {
     polish: 'Polski',
     loading: 'Ładowanie...',
     library: 'Biblioteka',
-    media: 'Powiązane Media'
+    media: 'Powiązane Media',
+    noArticles: 'Brak artykułów w tej kategorii.'
   },
   main: {
     discover: 'Odkrywaj',
