@@ -2,6 +2,7 @@ import React from 'react';
 import { Book, MessageCircle, Sparkles, BookOpen, ThumbsUp, ThumbsDown } from 'lucide-react';
 import SearchResultItem from './SearchResultItem';
 import AIInsights from './AIInsights';
+import RelatedMedia from './RelatedMedia';
 import { useLanguage } from '../lib/language-context';
 
 interface SearchResultsProps {
@@ -11,6 +12,9 @@ interface SearchResultsProps {
   llmResponse: string;
   onVote?: (vote: 'up' | 'down') => void;
   voteStatus?: 'up' | 'down' | null;
+  settings?: {
+    media: boolean;
+  };
 }
 
 const SearchResults: React.FC<SearchResultsProps> = ({ 
@@ -19,17 +23,12 @@ const SearchResults: React.FC<SearchResultsProps> = ({
   commentaryResults = [], 
   llmResponse,
   onVote,
-  voteStatus = null
+  voteStatus = null,
+  settings
 }) => {
   const { t } = useLanguage();
 
   const handleVote = (type: 'up' | 'down') => {
-    // Check if onVote exists. The hook manages state now, so we don't need to check "voted" locally to prevent multi-votes if we want to allow changing votes.
-    // However, if we want to lock it, we can check voteStatus.
-    // The previous implementation locked it. Let's keep it locked if voteStatus is set, unless requirements say otherwise.
-    // But usually APIs allow changing votes.
-    // The previous code: "if (voted || !onVote) return;"
-    // Let's stick to simple safety:
     if (!onVote) return;
     onVote(type);
   };
@@ -45,17 +44,14 @@ const SearchResults: React.FC<SearchResultsProps> = ({
 
   return (
     <div className="space-y-8 animate-in fade-in duration-500">
-      {llmResponse && (
-        <section className="bg-white rounded-2xl shadow-sm border border-slate-100 overflow-hidden">
-          <div className="bg-indigo-50/50 border-b border-indigo-100 p-4 flex items-center gap-2">
-            <Sparkles className="w-5 h-5 text-indigo-600" />
-            <h3 className="font-semibold text-indigo-900">{t.main.aiInsight}</h3>
-          </div>
-          <div className="p-6">
+      {/* Main Content Area */}
+      <div className="grid grid-cols-1 gap-8">
+        {llmResponse && (
+          <section>
             <AIInsights content={llmResponse} />
             
             {onVote && (
-              <div className="mt-6 flex items-center justify-end gap-2 pt-4 border-t border-indigo-50">
+              <div className="mt-4 flex items-center justify-end gap-2">
                 <span className="text-xs text-slate-400 mr-2">{t.main.feedback || 'Was this helpful?'}</span>
                 <button 
                   onClick={() => handleVote('up')}
@@ -85,54 +81,61 @@ const SearchResults: React.FC<SearchResultsProps> = ({
                 </button>
               </div>
             )}
-          </div>
-        </section>
-      )}
+          </section>
+        )}
 
-      {bibleResults.length > 0 && (
-        <section className="space-y-4">
-          <div className="flex items-center gap-2 px-1">
-            <Book className="w-5 h-5 text-slate-400" />
-            <h3 className="text-lg font-semibold text-slate-800">{t.main.scriptureMatches}</h3>
-          </div>
-          <div className="grid gap-4">
-            {bibleResults.map((result, index) => {
-              const [source, content] = result.split("\nContent: ");
-              return (
-                <SearchResultItem
-                  key={index}
-                  source={source}
-                  content={content}
-                  borderColor="border-indigo-500"
-                  textColor="text-indigo-600"
-                />
-              );
-            })}
-          </div>
-        </section>
-      )}
-      
-      {commentaryResults.length > 0 && (
-        <section className="space-y-4">
-          <div className="flex items-center gap-2 px-1">
-            <MessageCircle className="w-5 h-5 text-slate-400" />
-            <h3 className="text-lg font-semibold text-slate-800">{t.main.commentary}</h3>
-          </div>
-          <div className="grid gap-4">
-            {commentaryResults.map((result, index) => {
-              const [source, content] = result.split("\nContent: ");
-              return (
-                <SearchResultItem
-                  key={index}
-                  source={source}
-                  content={content}
-                  borderColor="border-amber-500"
-                  textColor="text-amber-600"
-                />
-              );
-            })}
-          </div>
-        </section>
+        {bibleResults.length > 0 && (
+          <section className="space-y-4">
+            <div className="flex items-center gap-2 px-1">
+              <Book className="w-5 h-5 text-slate-400" />
+              <h3 className="text-lg font-bold text-slate-800 tracking-tight">{t.main.bibleResults || 'Możliwe wersety odpowiedzi'}</h3>
+            </div>
+            <div className="grid gap-4">
+              {bibleResults.map((result, index) => {
+                const [source, content] = result.split("\nContent: ");
+                return (
+                  <SearchResultItem
+                    key={index}
+                    source={source}
+                    content={content}
+                    borderColor="border-indigo-500"
+                    textColor="text-indigo-600"
+                  />
+                );
+              })}
+            </div>
+          </section>
+        )}
+        
+        {commentaryResults.length > 0 && (
+          <section className="space-y-4">
+            <div className="flex items-center gap-2 px-1">
+              <MessageCircle className="w-5 h-5 text-slate-400" />
+              <h3 className="text-lg font-bold text-slate-800 tracking-tight">{t.main.commentary}</h3>
+            </div>
+            <div className="grid gap-4">
+              {commentaryResults.map((result, index) => {
+                const [source, content] = result.split("\nContent: ");
+                return (
+                  <SearchResultItem
+                    key={index}
+                    source={source}
+                    content={content}
+                    borderColor="border-amber-500"
+                    textColor="text-amber-600"
+                  />
+                );
+              })}
+            </div>
+          </section>
+        )}
+      </div>
+
+      {/* Related Media Section - Only if enabled in settings */}
+      {settings?.media && (
+         <div className="pt-8 border-t border-slate-100">
+             <RelatedMedia query={query} />
+         </div>
       )}
     </div>
   );
