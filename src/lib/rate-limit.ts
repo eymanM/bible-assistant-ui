@@ -1,14 +1,11 @@
 
 import { pool } from './db';
 import { LIMITS } from '../config/limits';
+import logger from './logger';
 
 export async function checkRateLimit(userId: string, type: 'media' | 'general'): Promise<boolean> {
   if (!userId) {
-    // If no user ID, decide policy. For now allowing, or maybe we should block?
-    // User requested "limitter dla użytkownika", implying per-user.
-    // If unauthenticated, maybe a stricter global limit based on IP?
-    // But for now, let's assume valid userId for tracking.
-    // If we want to support unauth, we'd need another mechanism.
+    // No rate limiting for unauthenticated users (consider IP-based limiting in future)
     return true; 
   }
 
@@ -18,28 +15,34 @@ export async function checkRateLimit(userId: string, type: 'media' | 'general'):
   try {
     const today = new Date().toISOString().split('T')[0];
     
-    // Upsert and increment
-    const res = await pool.query(
-      `INSERT INTO user_daily_usage (user_id, day, ${column})
-       VALUES ($1, $2, 1)
-       ON CONFLICT (user_id, day)
-       DO UPDATE SET ${column} = user_daily_usage.${column} + 1, updated_at = NOW()
-       RETURNING ${column}`,
+    const checkRes = await pool.query(
+      `SELECT ${column} FROM bible_assistant.user_daily_usage 
+       WHERE user_id = $1 AND day = $2`,
       [userId, today]
     );
 
-    const currentUsage = res.rows[0][column];
+    const currentUsage = checkRes.rows[0]?.[column] || 0;
     
-    if (currentUsage > limit) {
-        console.warn(`Rate limit exceeded for user ${userId} on ${type}. Usage: ${currentUsage}, Limit: ${limit}`);
+    // Check if already at or over limit BEFORE incrementing
+    if (currentUsage >= limit) {
+        logger.warn({ userId, type, currentUsage, limit }, 'Rate limit exceeded');
         return false;
     }
 
+    await pool.query(
+      `INSERT INTO bible_assistant.user_daily_usage (user_id, day, ${column})
+       VALUES ($1, $2, 1)
+       ON CONFLICT (user_id, day)
+       DO UPDATE SET ${column} = bible_assistant.user_daily_usage.${column} + 1, updated_at = NOW()`,
+      [userId, today]
+    );
+
     return true;
   } catch (error) {
-    console.error('Rate limit check failed:', error);
-    // Fail open or closed? detailed error logging is crucial.
-    // Let's fail open to avoid blocking users on DB errors, but log heavily.
-    return true; 
+    logger.error({ err: error, userId, type }, 'Rate limit check failed');
+    // SECURITY: Fail closed - deny access on DB errors
+    // This prevents abuse if database is down, but may block legitimate users
+    // Consider monitoring and alerting on this error
+    return false; 
   }
 }
