@@ -5,11 +5,12 @@ import { useLanguage } from '../lib/language-context';
 interface SearchBarProps {
   onSearch: (query: string) => void;
   disabled?: boolean;
+  isLoading?: boolean;
   showCreditsWarning?: boolean;
   currentQuery?: string;
 }
 
-const SearchBar: React.FC<SearchBarProps> = ({ onSearch, disabled, showCreditsWarning = true, currentQuery }) => {
+const SearchBar: React.FC<SearchBarProps> = ({ onSearch, disabled, isLoading, showCreditsWarning = true, currentQuery }) => {
   const { t } = useLanguage();
   const [query, setQuery] = useState(currentQuery || '');
   const [showLimitWarning, setShowLimitWarning] = useState(false);
@@ -45,32 +46,39 @@ const SearchBar: React.FC<SearchBarProps> = ({ onSearch, disabled, showCreditsWa
             setQuery(val);
             setShowLimitWarning(val.length >= 150);
           }}
-          onKeyDown={(e) => e.key === 'Enter' && handleSearch()}
-          disabled={disabled}
+          onKeyDown={(e) => e.key === 'Enter' && !isLoading && handleSearch()}
+          disabled={disabled || isLoading}
           maxLength={150}
           placeholder={disabled ? t.main.loginRequired : t.main.searchPlaceholder}
           className={`w-full py-5 pl-14 pr-32 text-lg bg-white border-2 rounded-2xl transition-all duration-300 outline-none
-            ${disabled 
+            ${disabled || isLoading
               ? 'bg-gray-50 border-gray-100 text-gray-400 cursor-not-allowed placeholder-gray-400' 
               : 'border-slate-100 shadow-lg shadow-indigo-500/5 text-slate-800 focus:border-indigo-500/50 focus:ring-4 focus:ring-indigo-500/10'
             }`}
         />
         <Search className={`absolute left-5 top-1/2 -translate-y-1/2 w-6 h-6 transition-colors ${
-           disabled ? 'text-gray-300' : 'text-indigo-500 group-hover:text-indigo-600'
+           disabled || isLoading ? 'text-gray-300' : 'text-indigo-500 group-hover:text-indigo-600'
         }`} />
         
         <button 
           onClick={handleSearch}
-          disabled={disabled || !query.trim()}
+          disabled={disabled || isLoading || !query.trim()}
           className={`absolute right-3 top-1/2 -translate-y-1/2 px-6 py-2.5 rounded-xl font-semibold text-sm transition-all duration-200 ${
-            disabled 
+            disabled || isLoading
               ? 'bg-gray-100 text-gray-400 cursor-not-allowed' 
               : !query.trim()
                 ? 'bg-slate-100 text-slate-400 cursor-not-allowed'
                 : 'bg-indigo-600 text-white shadow-md shadow-indigo-500/20 hover:bg-indigo-700 hover:shadow-indigo-500/30 transform active:scale-95'
           }`}
         >
-          {t.main.searchButton}
+            {isLoading ? (
+            <div className="flex items-center gap-2">
+              <div className="w-4 h-4 border-2 border-slate-400 border-t-transparent rounded-full animate-spin"></div>
+              <span>{t.main.searchButton}</span>
+            </div>
+          ) : (
+            t.main.searchButton
+          )}
         </button>
       </div>
       
