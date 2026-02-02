@@ -20,7 +20,7 @@ export async function getUserByCognitoSub(cognitoSub: string): Promise<User | nu
 export async function createUser(cognitoSub: string, email: string): Promise<User> {
   const res = await pool.query(
     `INSERT INTO bible_assistant.users (cognito_sub, email, credits)
-     VALUES ($1, $2, 5)
+     VALUES ($1, $2, 10)
      RETURNING *`,
     [cognitoSub, email]
   );
