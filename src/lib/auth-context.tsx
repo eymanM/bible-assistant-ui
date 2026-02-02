@@ -45,13 +45,11 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
                     }
                     }
                 });
-                console.log("AuthContext: Amplify configured successfully");
                 } catch (e) {
-                console.error("Amplify Config Error", e);
+                // Amplify config error - silent fail
                 }
             }
 
-            // Subscribe to auth events
             const hubListenerCancel = Hub.listen('auth', (data) => {
                 switch (data.payload.event) {
                 case 'signedIn':
@@ -67,7 +65,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
             return () => hubListenerCancel();
         } catch (error) {
-            console.error("Failed to load Amplify:", error);
+            // Failed to load Amplify - silent fail
             setLoading(false);
         }
     };
@@ -80,7 +78,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       const currentUser = await getUser();
       setUser(currentUser);
 
-      // Sync user to DB
       if (currentUser?.userId && currentUser?.signInDetails?.loginId) {
         try {
           const res = await fetch('/api/user/sync', {
@@ -96,7 +93,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
             setDbUser(data.user);
           }
         } catch (err) {
-            console.error('Failed to sync user to DB:', err);
+            // Failed to sync user - silent fail
         }
       }
 
