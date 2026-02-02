@@ -3,13 +3,15 @@
 import React from 'react';
 import { History, X } from 'lucide-react';
 import Image from 'next/image';
-import AboutModal from './AboutModal';
-import HistoryModal from './HistoryModal';
+import dynamic from 'next/dynamic';
+import Link from 'next/link';
 import { version } from '../../package.json';
 import { useLanguage } from '../lib/language-context';
-import LanguageSelector from './sidebar/LanguageSelector';
 import SearchSources from './sidebar/SearchSources';
 import UserProfile from './sidebar/UserProfile';
+
+const AboutModal = dynamic(() => import('./AboutModal'), { ssr: false });
+const HistoryModal = dynamic(() => import('./HistoryModal'), { ssr: false });
 
 import { User } from '@/lib/types';
 
@@ -25,6 +27,7 @@ interface SidebarProps {
     newTestament: boolean;
     commentary: boolean;
     insights: boolean;
+    media: boolean;
   };
   /**
    * State setter for settings.
@@ -34,6 +37,7 @@ interface SidebarProps {
     newTestament: boolean;
     commentary: boolean;
     insights: boolean;
+    media: boolean;
   }>>;
   query: string;
   onSearch: (query: string) => void;
@@ -69,8 +73,9 @@ const Sidebar: React.FC<SidebarProps> = ({ settings, setSettings, onHistoryClick
               width={32} 
               height={32} 
               className="rounded-lg" 
+              priority
             />
-            <h1 className="text-xl font-bold tracking-tight text-slate-800">{t.sidebar.title}</h1>
+            <span className="text-xl font-bold tracking-tight text-slate-800">{t.sidebar.title}</span>
           </div>
           <button 
             onClick={onClose}
@@ -82,18 +87,23 @@ const Sidebar: React.FC<SidebarProps> = ({ settings, setSettings, onHistoryClick
         </div>
 
         <div className="flex-1 overflow-y-auto py-6 px-4">
-          <LanguageSelector onLanguageChange={onLanguageChange} />
-
           <SearchSources settings={settings} setSettings={setSettings} />
 
-          {/* History Button */}
-          <button
-            onClick={() => setIsHistoryOpen(true)}
-            className="w-full flex items-center justify-center gap-2 p-3 text-sm text-slate-600 hover:text-indigo-600 hover:bg-slate-50 rounded-xl transition-all mt-4 border border-slate-200 hover:border-indigo-200 hover:shadow-sm"
-          >
-            <History className="w-4 h-4" />
-            <span className="font-medium">{t.sidebar.recentSearches}</span>
-          </button>
+          {/* History Section */}
+          <div className="mt-8">
+            <div className="px-1 mb-3">
+              <h2 className="text-xs font-semibold text-slate-900 uppercase tracking-wider">
+                {t.sidebar.library}
+              </h2>
+            </div>
+            <button
+              onClick={() => setIsHistoryOpen(true)}
+              className="w-full flex items-center gap-3 p-3 text-sm font-medium text-slate-700 bg-white border border-slate-200 rounded-xl hover:border-indigo-300 hover:text-indigo-600 transition-all shadow-sm group"
+            >
+              <History className="w-5 h-5 text-slate-400 group-hover:text-indigo-500 transition-colors" />
+              <span>{t.sidebar.recentSearches}</span>
+            </button>
+          </div>
 
         </div>
 
@@ -101,14 +111,10 @@ const Sidebar: React.FC<SidebarProps> = ({ settings, setSettings, onHistoryClick
         <UserProfile user={user} onLogout={onLogout} onClose={onClose} />
 
         <div className="p-4 border-t border-slate-100 bg-slate-50/50">
-           <button 
-            onClick={() => setIsAboutOpen(true)}
-            className="w-full flex items-center justify-center gap-2 p-2 text-sm text-slate-500 hover:text-indigo-600 hover:bg-white rounded-lg transition-all mb-2 border border-transparent hover:border-slate-200 hover:shadow-sm"
-          >
-             <span className="font-medium">{t.sidebar.aboutProject}</span>
-           </button>
+
           <div className="flex items-center justify-between text-xs text-slate-400 px-2">
             <span>{version}</span>
+            <span>&copy; {new Date().getFullYear()}</span>
           </div>
         </div>
       </aside>

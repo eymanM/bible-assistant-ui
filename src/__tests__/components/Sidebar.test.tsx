@@ -28,6 +28,7 @@ describe('Sidebar Component', () => {
       newTestament: true,
       commentary: true,
       insights: true,
+      media: true,
     },
     setSettings: jest.fn(),
     query: '',
