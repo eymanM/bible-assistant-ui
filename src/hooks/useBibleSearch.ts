@@ -1,7 +1,8 @@
-import { useState } from 'react';
+import { useState, useCallback, useRef } from 'react';
 
 import { useAuth } from '../lib/auth-context';
 import { useLanguage } from '../lib/language-context';
+import { getAuthHeaders, getOptionalAuthHeaders } from '../lib/auth-helpers';
 
 interface BibleSearchSettings {
   oldTestament: boolean;
@@ -37,9 +38,10 @@ export const useBibleSearch = () => {
     llmResponse: ''
   });
   const [loading, setLoading] = useState(false);
+  const loadingRef = useRef(false); // Ref to track loading state synchronously
   const [error, setError] = useState<string | null>(null);
 
-  const getTranslatedError = (msg: string) => {
+  const getTranslatedError = useCallback((msg: string) => {
     if (!msg) return t.apiErrors.internalError;
     const lowerMsg = msg.toLowerCase();
     
@@ -53,25 +55,28 @@ export const useBibleSearch = () => {
     if (lowerMsg.includes("'nonetype' object has no attribute 'stream'")) return t.apiErrors.internalError;
     
     return msg;
-  };
+  }, [t]);
 
-  // Helper wrapper for setError to always translate
-  const setTranslatedError = (msg: string | null) => {
+  const setTranslatedError = useCallback((msg: string | null) => {
     if (msg === null) {
       setError(null);
     } else {
       setError(getTranslatedError(msg));
     }
-  };
+  }, [getTranslatedError]);
+
   const { user } = useAuth();
   const [historyRefreshTrigger, setHistoryRefreshTrigger] = useState(0);
   const [currentHistoryId, setCurrentHistoryId] = useState<number | null>(null);
   const [currentSearchId, setCurrentSearchId] = useState<number | null>(null);
   const [voteStatus, setVoteStatus] = useState<'up' | 'down' | null>(null);
 
-  const search = async (searchQuery: string) => {
+  const search = useCallback(async (searchQuery: string) => {
+    if (loadingRef.current) return;
     setQuery(searchQuery);
     setLoading(true);
+    loadingRef.current = true;
+    
     setTranslatedError(null);
     setCurrentHistoryId(null);
     setCurrentSearchId(null);
@@ -86,10 +91,10 @@ export const useBibleSearch = () => {
         }
 
         // Check if user has sufficient credits
+        const headers = await getAuthHeaders();
         const checkRes = await fetch('/api/credits/check', {
           method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ userId: user.userId })
+          headers
         });
 
         if (!checkRes.ok) {
@@ -98,15 +103,12 @@ export const useBibleSearch = () => {
         }
       }
 
+      const headers = await getOptionalAuthHeaders();
       const response = await fetch('/api/search', {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Accept': 'text/event-stream',
-        },
+        headers,
         body: JSON.stringify({ 
           query: searchQuery,
-          userId: user?.userId,  // Pass userId to allow backend to skip cache for this user
           settings: {
             ...settings,
             language
@@ -168,7 +170,6 @@ export const useBibleSearch = () => {
               }));
               
               
-              // Check if we have any results
               if (parsed.bible_results?.length > 0 || parsed.commentary_results?.length > 0) {
                 hasResults = true;
               }
@@ -261,11 +262,11 @@ export const useBibleSearch = () => {
         
         if (shouldSave) {
           try {
+            const headers = await getAuthHeaders();
             const historyRes = await fetch('/api/history', {
               method: 'POST',
-              headers: { 'Content-Type': 'application/json' },
+              headers,
               body: JSON.stringify({
-                userId: user.userId,
                 query: searchQuery,
                 response: tempResults.llmResponse,
                 bible_results: tempResults.bible,
@@ -293,10 +294,11 @@ export const useBibleSearch = () => {
       const creditsTask = async () => {
         if (settings.insights && hasResults && !hasError && user?.userId) {
           try {
+            const headers = await getAuthHeaders();
             const deductRes = await fetch('/api/credits/deduct', {
               method: 'POST',
-              headers: { 'Content-Type': 'application/json' },
-              body: JSON.stringify({ userId: user.userId })
+              headers,
+              body: JSON.stringify({ amount: 1 })
             });
   
             if (!deductRes.ok) {
@@ -318,10 +320,11 @@ export const useBibleSearch = () => {
       console.error('Search error:', err);
     } finally {
       setLoading(false);
+      loadingRef.current = false;
     }
-  };
+  }, [settings, user, language, setTranslatedError]);
 
-  const loadFromHistory = (
+  const loadFromHistory = useCallback((
     historyItem: { 
       query: string; 
       response?: string; 
@@ -360,26 +363,27 @@ export const useBibleSearch = () => {
     
     setTranslatedError(null);
     setLoading(false);
+    loadingRef.current = false;
     
     setCurrentSearchId(null);
     if (historyItem.id) {
       setCurrentHistoryId(historyItem.id);
     }
-  };
+  }, [setTranslatedError]);
 
 
-  const vote = async (voteType: 'up' | 'down') => {
+  const vote = useCallback(async (voteType: 'up' | 'down') => {
     // We can vote if we have a historyId OR (searchId and user)
     if (!currentHistoryId && (!currentSearchId || !user?.userId)) return;
     
     try {
+      const headers = await getOptionalAuthHeaders();
       const response = await fetch('/api/vote', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers,
         body: JSON.stringify({ 
           historyId: currentHistoryId, 
           searchId: currentSearchId,
-          userId: user?.userId, 
           voteType 
         })
       });
@@ -399,7 +403,7 @@ export const useBibleSearch = () => {
     } catch (e) {
       console.error('Error voting:', e);
     }
-  };
+  }, [currentHistoryId, currentSearchId, user]);
 
   return {
     query,
