@@ -22,32 +22,27 @@ interface SerperImageItem {
   position: number;
 }
 
-// In-memory deduplication map: key = "query:lang", value = Promise<MediaItem[]>
-const deduplicationMap = new Map<string, Promise<MediaItem[]>>();
+const pendingRequests = new Map<string, Promise<MediaItem[]>>();
 
 export async function searchMedia(query: string, language: string = 'en'): Promise<MediaItem[]> {
   if (!query) return [];
 
-  const dedupKey = `${query}:${language}`;
+  const cacheKey = `${query}:${language}`;
 
-  // 1. Check in-memory deduplication
-  if (deduplicationMap.has(dedupKey)) {
-    return deduplicationMap.get(dedupKey)!;
+  if (pendingRequests.has(cacheKey)) {
+    return pendingRequests.get(cacheKey)!;
   }
 
-  // 2. Create a new promise for this request
-  const searchPromise = (async () => {
+  const requestPromise = (async () => {
     try {
         const response = await fetch(`/api/media-search?q=${encodeURIComponent(query)}&lang=${language}`);
         
         if (!response.ok) {
-            console.warn(`Media Search API error: ${response.statusText}`);
             return [];
         }
 
         const data = await response.json();
         
-        // API now returns { images: MediaItem[], cached: boolean }
         if (Array.isArray(data.images)) {
              return data.images as MediaItem[];
         }
@@ -55,14 +50,12 @@ export async function searchMedia(query: string, language: string = 'en'): Promi
         return [];
 
     } catch (error) {
-        console.error('Failed to fetch related media:', error);
         return [];
     } finally {
-        // 3. Cleanup deduplication map
-        deduplicationMap.delete(dedupKey);
+        pendingRequests.delete(cacheKey);
     }
   })();
 
-  deduplicationMap.set(dedupKey, searchPromise);
-  return searchPromise;
+  pendingRequests.set(cacheKey, requestPromise);
+  return requestPromise;
 }
