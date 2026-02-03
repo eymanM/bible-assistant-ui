@@ -26,7 +26,6 @@ export async function createTransaction(
      ON CONFLICT (stripe_session_id) 
      DO UPDATE SET 
        status = EXCLUDED.status,
-       updated_at = CURRENT_TIMESTAMP,
        amount = EXCLUDED.amount,
        credits = EXCLUDED.credits
      RETURNING *`,
@@ -41,7 +40,7 @@ export async function updateTransactionStatus(
 ): Promise<Transaction | null> {
   const res = await pool.query(
      `UPDATE bible_assistant.transactions
-      SET status = $2, updated_at = CURRENT_TIMESTAMP
+      SET status = $2
       WHERE stripe_session_id = $1
       RETURNING *`,
       [stripeSessionId, status]
