@@ -16,6 +16,7 @@ export interface Translation {
     loading: string;
     library: string;
     media: string;
+    noArticles: string;
   };
   main: {
     discover: string;
@@ -126,6 +127,8 @@ export interface Translation {
     networkError: string;
     unauthorized: string;
     failedToVote: string;
+    rateLimitExceeded: string;
+    mediaLimitExceeded: string;
   };
   credits: {
     title: string;
