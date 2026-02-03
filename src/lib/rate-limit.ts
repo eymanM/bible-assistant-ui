@@ -33,7 +33,7 @@ export async function checkRateLimit(userId: string, type: 'media' | 'general'):
       `INSERT INTO bible_assistant.user_daily_usage (user_id, day, ${column})
        VALUES ($1, $2, 1)
        ON CONFLICT (user_id, day)
-       DO UPDATE SET ${column} = bible_assistant.user_daily_usage.${column} + 1, updated_at = NOW()`,
+       DO UPDATE SET ${column} = bible_assistant.user_daily_usage.${column} + 1`,
       [userId, today]
     );
 
