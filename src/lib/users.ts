@@ -30,7 +30,7 @@ export async function createUser(cognitoSub: string, email: string): Promise<Use
 export async function addCredits(cognitoSub: string, amount: number): Promise<User> {
   const res = await pool.query(
     `UPDATE bible_assistant.users
-     SET credits = credits + $2, updated_at = CURRENT_TIMESTAMP
+     SET credits = credits + $2
      WHERE cognito_sub = $1
      RETURNING *`,
     [cognitoSub, amount]
@@ -41,7 +41,7 @@ export async function addCredits(cognitoSub: string, amount: number): Promise<Us
 export async function deductCredits(cognitoSub: string, amount: number): Promise<User | null> {
   const res = await pool.query(
     `UPDATE bible_assistant.users
-     SET credits = credits - $2, updated_at = CURRENT_TIMESTAMP
+     SET credits = credits - $2
      WHERE cognito_sub = $1 AND credits >= $2
      RETURNING *`,
     [cognitoSub, amount]
@@ -52,7 +52,7 @@ export async function deductCredits(cognitoSub: string, amount: number): Promise
 export async function updateUserSettings(cognitoSub: string, settings: any): Promise<User> {
   const res = await pool.query(
     `UPDATE bible_assistant.users
-     SET settings = $2, updated_at = CURRENT_TIMESTAMP
+     SET settings = $2
      WHERE cognito_sub = $1
      RETURNING *`,
     [cognitoSub, settings]
