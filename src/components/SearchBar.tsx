@@ -53,7 +53,7 @@ const SearchBar: React.FC<SearchBarProps> = ({ onSearch, disabled, isLoading, sh
           className={`w-full py-5 pl-14 pr-32 text-lg bg-white border-2 rounded-2xl transition-all duration-300 outline-none
             ${disabled || isLoading
               ? 'bg-gray-50 border-gray-100 text-gray-400 cursor-not-allowed placeholder-gray-400' 
-              : 'border-slate-100 shadow-lg shadow-indigo-500/5 text-slate-800 focus:border-indigo-500/50 focus:ring-4 focus:ring-indigo-500/10'
+              : 'border-slate-100 shadow-lg shadow-indigo-500/5 text-slate-800 focus:border-indigo-500/50 focus:ring-4 focus:ring-indigo-500/10 hover:border-indigo-500/30'
             }`}
         />
         <Search className={`absolute left-5 top-1/2 -translate-y-1/2 w-6 h-6 transition-colors ${
@@ -68,7 +68,7 @@ const SearchBar: React.FC<SearchBarProps> = ({ onSearch, disabled, isLoading, sh
               ? 'bg-gray-100 text-gray-400 cursor-not-allowed' 
               : !query.trim()
                 ? 'bg-slate-100 text-slate-400 cursor-not-allowed'
-                : 'bg-indigo-600 text-white shadow-md shadow-indigo-500/20 hover:bg-indigo-700 hover:shadow-indigo-500/30 transform active:scale-95'
+                : 'bg-indigo-600 text-white shadow-md shadow-indigo-500/20 hover:bg-indigo-700 hover:shadow-indigo-500/30 transform active:scale-[0.96]'
           }`}
         >
             {isLoading ? (

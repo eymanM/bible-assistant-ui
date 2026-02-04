@@ -12,66 +12,52 @@ interface ParsedSection {
 }
 
 const AIInsights: React.FC<AIInsightsProps> = ({ content }) => {
-  const parseContent = (text: string): ParsedSection[] => {
-    if (!text) return [];
-
-    // Define markers for both languages
-    // EN: Connections:, Theological Significance:, A Call for You:
-    // PL: Powiązania:, Znaczenie Teologiczne:, Wezwanie dla Ciebie:
+  // Parsing logic for [1], [2] citations
+  const renderWithCitations = (text: string) => {
+    // Regex to match [number]
+    const parts = text.split(/(\[\d+\])/g);
     
-    // We will look for these headers. 
-    // Since the structure is guaranteed to be 3 points, we can try to split by these headers.
-    
-    // Strategy: Split by known headers, capturing the header itself.
-    // Regex to match one of the headers, case insensitive, at the start of a line.
-    const headerRegex = /((?:Connections|Theological Significance|A Call for You|Powiązania|Znaczenie Teologiczne|Wezwanie dla Ciebie):)/gi;
-    
-    const parts = text.split(headerRegex).filter(p => p.trim());
-    
-    const sections: ParsedSection[] = [];
-    
-    for (let i = 0; i < parts.length; i += 2) {
-      const header = parts[i]?.trim();
-      let body = parts[i + 1]?.trim();
-      
-      if (header && body) {
-        // Remove leading newline if present (per user request "if after point is enter, cut it")
-        // .trim() handles whitespace, but let's be explicit if there are other artifacts.
-        // Actually .trim() on the strings from split should be sufficient to remove surrounding newlines.
-        
-        // Determine type based on header content
-        let type: ParsedSection['type'] = 'general';
-        const h = header.toLowerCase();
-        
-        if (h.includes('connections') || h.includes('powiązania')) type = 'connections';
-        else if (h.includes('theological') || h.includes('znaczenie teologiczne')) type = 'theology';
-        else if (h.includes('call for you') || h.includes('wezwanie')) type = 'application';
-        
-        sections.push({
-          title: header.replace(':', ''), // Remove colon for display title if desired, or keep it. Let's remove for cleaner look.
-          body: body,
-          type
-        });
+    return parts.map((part, index) => {
+      if (part.match(/^\[\d+\]$/)) {
+        const num = part.replace(/[\[\]]/g, '');
+        return (
+          <sup key={index} className="inline-flex items-center justify-center w-5 h-5 ml-0.5 text-[10px] font-bold text-slate-500 bg-slate-100 rounded-full border border-slate-200 cursor-pointer hover:bg-indigo-100 hover:text-indigo-600 hover:border-indigo-200 transition-colors -translate-y-1">
+            {num}
+          </sup>
+        );
       }
-    }
-    
-    // Fallback: If regex didn't find known headers (maybe prompt changed or partial response), 
-    // treat as single block or try double newline split.
-    if (sections.length === 0 && text.trim()) {
-        const paragraphs = text.split(/\n\n+/);
-        if (paragraphs.length === 3) {
-             // Try to identify if they look like the expected 3 points even without exact headers matching regex
-             // For now, simpler fallback: just valid text.
-             // Or maybe we just display raw if parsing fails to avoid partial data loss.
-             return [{ title: 'AI Insight', body: text, type: 'general' }];
-        }
-        return [{ title: 'AI Insight', body: text, type: 'general' }];
-    }
+      return <span key={index}>{part}</span>;
+    });
+  };
 
-    return sections;
+  const parseContent = (text: string): ParsedSection[] => {
+      const headerRegex = /((?:Connections|Theological Significance|A Call for You|Powiązania|Znaczenie Teologiczne|Wezwanie dla Ciebie):)/gi;
+      const parts = text.split(headerRegex).filter(p => p.trim());
+      const sections: ParsedSection[] = [];
+
+      for (let i = 0; i < parts.length; i += 2) {
+        const header = parts[i]?.trim();
+        let body = parts[i + 1]?.trim();
+        if (header && body) {
+             let type: ParsedSection['type'] = 'general';
+             const h = header.toLowerCase();
+             if (h.includes('connections') || h.includes('powiązania')) type = 'connections';
+             else if (h.includes('theological') || h.includes('znaczenie teologiczne')) type = 'theology';
+             else if (h.includes('call for you') || h.includes('wezwanie')) type = 'application';
+
+             sections.push({ title: header.replace(':', ''), body, type });
+        }
+      }
+      
+      if (sections.length === 0 && text.trim()) {
+           return [{ title: 'Przewidywana odpowiedź', body: text, type: 'general' }];
+      }
+      return sections;
   };
 
   const sections = parseContent(content);
+
+  if (sections.length === 0) return null;
 
   const getSectionStyle = (type: ParsedSection['type']) => {
     switch (type) {
@@ -102,8 +88,6 @@ const AIInsights: React.FC<AIInsightsProps> = ({ content }) => {
     }
   };
 
-  if (sections.length === 0) return null;
-
   return (
     <div className="space-y-6 w-full">
       {sections.map((section, idx) => {
@@ -118,8 +102,8 @@ const AIInsights: React.FC<AIInsightsProps> = ({ content }) => {
               </span>
               {section.title}
             </h3>
-            <p className="text-slate-700 leading-relaxed text-sm md:text-base whitespace-pre-wrap break-words pl-0.5">
-              {section.body}
+            <p className="text-slate-700 leading-relaxed text-base md:text-base whitespace-pre-wrap break-words pl-0.5">
+              {renderWithCitations(section.body)}
             </p>
           </div>
         );

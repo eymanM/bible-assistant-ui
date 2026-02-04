@@ -2,7 +2,6 @@
 
 import React from 'react';
 import SearchBar from './SearchBar';
-import MotionWrapper from './MotionWrapper';
 import Sidebar from './Sidebar';
 import Footer from './Footer';
 import { useBibleSearch } from '../hooks/useBibleSearch';
@@ -30,6 +29,10 @@ const BibleApp: React.FC = () => {
 
   return (
     <div className="flex min-h-screen bg-gray-50 font-sans">
+      <a href="#main-content" className="skip-to-content">
+        Skip to main content
+      </a>
+      
       {/* Mobile Overlay */}
       {isSidebarOpen && (
         <div 
@@ -52,7 +55,7 @@ const BibleApp: React.FC = () => {
         onLogout={logout}
       />
       
-      <main className="flex-1 w-full max-w-[1600px] mx-auto min-w-0 flex flex-col">
+      <main id="main-content" role="main" className="flex-1 w-full max-w-[1600px] mx-auto min-w-0 flex flex-col">
         <header className="sticky top-0 z-30 glass px-4 md:px-8 py-4 mb-8 flex items-center justify-between">
           <div className="flex items-center gap-3">
             <button 
@@ -116,8 +119,8 @@ const BibleApp: React.FC = () => {
                        <button
                          key={suggestion}
                          onClick={() => search(suggestion)}
-                         disabled={!user}
-                         className="px-3 py-1.5 md:px-4 md:py-2 text-xs md:text-sm bg-white border border-slate-200 text-slate-600 rounded-full hover:border-indigo-300 hover:text-indigo-600 hover:bg-indigo-50 transition-all shadow-sm active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed"
+                         disabled={!user || searchLoading}
+                         className="px-3 py-1.5 md:px-4 md:py-2 text-xs md:text-sm bg-white border border-slate-200 text-slate-600 rounded-full hover:border-indigo-300 hover:text-indigo-600 hover:bg-indigo-50 transition-all shadow-sm active:scale-[0.96] disabled:opacity-50 disabled:cursor-not-allowed"
                        >
                          {suggestion}
                        </button>
@@ -126,7 +129,7 @@ const BibleApp: React.FC = () => {
                  )}
               </div>
   
-              <SearchBar onSearch={search} disabled={!user} showCreditsWarning={settings.insights} currentQuery={query} />
+              <SearchBar onSearch={search} disabled={!user} isLoading={searchLoading} showCreditsWarning={settings.insights} currentQuery={query} />
               
               {searchLoading && (
                 <div className="flex justify-center py-12">

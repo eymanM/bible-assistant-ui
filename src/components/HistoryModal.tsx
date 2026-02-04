@@ -2,8 +2,8 @@
 
 import React from 'react';
 import { X, History, Trash2 } from 'lucide-react';
-import { useAuth } from '../lib/auth-context';
 import { useLanguage } from '../lib/language-context';
+import { useSearchHistory } from '../hooks/useSearchHistory';
 
 interface HistoryModalProps {
   isOpen: boolean;
@@ -12,79 +12,31 @@ interface HistoryModalProps {
   refreshTrigger?: number;
 }
 
-export default function HistoryModal({ isOpen, onClose, onHistoryClick, refreshTrigger }: HistoryModalProps) {
-  const { user } = useAuth();
+export default function HistoryModal({ isOpen, onClose, onHistoryClick }: HistoryModalProps) {
   const { t } = useLanguage();
-  const [history, setHistory] = React.useState<Array<{ id: number; query: string; response?: string; bible_results?: string[]; commentary_results?: string[] }>>([]);
-  const [loading, setLoading] = React.useState(false);
-  const [hasMore, setHasMore] = React.useState(true);
+  const { 
+    data: history, 
+    isLoading: loading, 
+    fetchNextPage, 
+    hasNextPage, 
+    isFetchingNextPage,
+    deleteItem 
+  } = useSearchHistory();
+  
   const scrollRef = React.useRef<HTMLDivElement>(null);
-
-  const fetchHistory = React.useCallback(async (offset = 0, append = false) => {
-    if (!user?.userId || loading) return;
-    
-    setLoading(true);
-    try {
-      const response = await fetch(`/api/history?userId=${user.userId}&limit=20&offset=${offset}`);
-      const data = await response.json();
-      
-      if (data.history) {
-        if (append) {
-          setHistory(prev => {
-            const existingIds = new Set(prev.map(item => item.id));
-            const newItems = data.history.filter((item: any) => !existingIds.has(item.id));
-            return [...prev, ...newItems];
-          });
-        } else {
-          setHistory(data.history);
-        }
-        
-        if (data.history.length < 20) {
-          setHasMore(false);
-        }
-      }
-    } catch (err) {
-      console.error('Failed to fetch history:', err);
-    } finally {
-      setLoading(false);
-    }
-  }, [user?.userId, loading]);
-
-  React.useEffect(() => {
-    if (user?.userId && isOpen) {
-      setHistory([]);
-      setHasMore(true);
-      fetchHistory(0, false);
-    }
-  }, [user?.userId, refreshTrigger, isOpen]);
 
   const handleScroll = React.useCallback((e: React.UIEvent<HTMLDivElement>) => {
     const target = e.currentTarget;
     const bottom = target.scrollHeight - target.scrollTop <= target.clientHeight + 50;
     
-    if (bottom && hasMore && !loading) {
-      fetchHistory(history.length, true);
+    if (bottom && hasNextPage && !loading && !isFetchingNextPage) {
+      fetchNextPage();
     }
-  }, [hasMore, loading, history.length, fetchHistory]);
+  }, [hasNextPage, loading, isFetchingNextPage, fetchNextPage]);
 
   const handleDelete = async (id: number, e: React.MouseEvent) => {
     e.stopPropagation();
-    
-    if (!user?.userId) return;
-
-    try {
-      const response = await fetch(`/api/history?id=${id}&userId=${user.userId}`, {
-        method: 'DELETE'
-      });
-
-      if (response.ok) {
-        setHistory(prev => prev.filter(item => item.id !== id));
-      } else {
-        console.error('Failed to delete history item');
-      }
-    } catch (error) {
-      console.error('Error deleting history:', error);
-    }
+    deleteItem(id);
   };
 
   const handleItemClick = (item: any) => {
@@ -95,7 +47,7 @@ export default function HistoryModal({ isOpen, onClose, onHistoryClick, refreshT
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm p-4">
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm p-4 animate-in fade-in duration-200">
       <div className="bg-white rounded-2xl shadow-2xl w-full max-w-2xl h-[600px] flex flex-col">
         {/* Header */}
         <div className="bg-indigo-600 px-6 py-4 flex items-center justify-between rounded-t-2xl flex-shrink-0">
@@ -117,7 +69,7 @@ export default function HistoryModal({ isOpen, onClose, onHistoryClick, refreshT
           onScroll={handleScroll}
           className="flex-1 overflow-y-auto p-6"
         >
-          {loading && history.length === 0 ? (
+          {loading ? (
             <div className="flex items-center justify-center h-full">
               <div className="text-center">
                 <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-indigo-600 mx-auto mb-4"></div>
@@ -137,7 +89,7 @@ export default function HistoryModal({ isOpen, onClose, onHistoryClick, refreshT
                 <div 
                   key={item.id} 
                   onClick={() => handleItemClick(item)}
-                  className="p-4 hover:bg-slate-50 rounded-xl group cursor-pointer transition-all border border-slate-100 hover:border-indigo-200 hover:shadow-sm relative"
+                  className="p-4 hover:bg-slate-50 rounded-xl group cursor-pointer transition-all border border-slate-100 hover:border-indigo-200 hover:shadow-sm relative active:scale-[0.99]"
                 >
                   <div className="pr-8">
                     <p className="text-base font-semibold text-slate-800 mb-1">{item.query}</p>
@@ -154,7 +106,7 @@ export default function HistoryModal({ isOpen, onClose, onHistoryClick, refreshT
                   </button>
                 </div>
               ))}
-              {loading && history.length > 0 && (
+              {isFetchingNextPage && (
                 <div className="flex justify-center py-4">
                   <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-indigo-600"></div>
                 </div>
