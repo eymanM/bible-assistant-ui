@@ -18,19 +18,19 @@ const Footer: React.FC = () => {
           <nav className="flex items-center gap-6">
             <Link 
               href="/about" 
-              className="text-sm text-slate-600 hover:text-indigo-600 transition-colors font-medium"
+              className="text-sm text-slate-600 hover:text-indigo-600 hover:underline transition-colors font-medium"
             >
               {t.footer.about}
             </Link>
             <Link 
               href="/contact" 
-              className="text-sm text-slate-600 hover:text-indigo-600 transition-colors font-medium"
+              className="text-sm text-slate-600 hover:text-indigo-600 hover:underline transition-colors font-medium"
             >
               {t.footer.contact}
             </Link>
             <Link 
               href="/privacy-policy" 
-              className="text-sm text-slate-600 hover:text-indigo-600 transition-colors font-medium"
+              className="text-sm text-slate-600 hover:text-indigo-600 hover:underline transition-colors font-medium"
             >
               {t.footer.privacy}
             </Link>

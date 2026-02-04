@@ -6,11 +6,16 @@ import { LanguageProvider } from '@/lib/language-context';
 import CookieConsent from '@/components/CookieConsent';
 import QueryProvider from '@/providers/QueryProvider';
 
-const inter = Inter({ subsets: ['latin'] });
+const inter = Inter({ 
+  subsets: ['latin', 'latin-ext'],
+  display: 'swap',
+  preload: true,
+  variable: '--font-inter'
+});
 
 
 export const metadata: Metadata = {
-  metadataBase: new URL('http://localhost:3000'),
+  metadataBase: new URL(process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000'),
   title: {
     default: 'Bible Assistant - AI-Powered Bible Study & Research Tool',
     template: '%s | Bible Assistant',
@@ -73,9 +78,27 @@ export default function RootLayout({
 }: {
   children: React.ReactNode;
 }) {
+  const jsonLd = {
+    '@context': 'https://schema.org',
+    '@type': 'WebApplication',
+    name: 'Bible Assistant',
+    description: 'AI-powered Bible study assistant for exploring scripture, commentaries, and theological insights',
+    url: process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000',
+    applicationCategory: 'EducationalApplication',
+    offers: {
+      '@type': 'Offer',
+      price: '0',
+      priceCurrency: 'USD',
+    },
+  };
+
   return (
     <html lang="en" suppressHydrationWarning>
       <body className={inter.className} suppressHydrationWarning>
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+        />
         <AuthProvider>
           <QueryProvider>
             <LanguageProvider>
