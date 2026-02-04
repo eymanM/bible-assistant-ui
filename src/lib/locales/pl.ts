@@ -138,7 +138,9 @@ export const pl: Translation = {
     internalError: 'Błąd wewnętrzny serwera',
     networkError: 'Błąd połączenia sieciowego',
     unauthorized: 'Nieautoryzowany dostęp',
-    failedToVote: 'Nie udało się zagłosować'
+    failedToVote: 'Nie udało się zagłosować',
+    rateLimitExceeded: 'Serwer przeciążony, spróbuj jutro',
+    mediaLimitExceeded: 'Dzienny limit mediów wykorzystany'
   },
   credits: {
     title: 'Zakup Kredytów',

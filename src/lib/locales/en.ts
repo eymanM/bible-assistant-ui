@@ -138,7 +138,9 @@ export const en: Translation = {
     internalError: 'Internal server error',
     networkError: 'Network response was not ok',
     unauthorized: 'Unauthorized access',
-    failedToVote: 'Failed to vote'
+    failedToVote: 'Failed to vote',
+    rateLimitExceeded: 'Server overloaded, try again tomorrow',
+    mediaLimitExceeded: 'Daily media search limit exceeded'
   },
   credits: {
     title: 'Purchase Credits',
