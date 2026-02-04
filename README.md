@@ -63,6 +63,10 @@ Follow these instructions to set up the project locally.
    DATABASE_URL=postgres://postgres:password@localhost:5432/postgres
    NODE_ENV=development
    BACKEND_API_KEY=your-api-key-here
+   SERPER_API_KEY=your-serper-api-key
+   MEDIA_CACHE_EXPIRATION_DAYS=30
+   USER_MEDIA_SEARCH_LIMIT=100
+   USER_GENERAL_REQUEST_LIMIT=1000
    ```
 
 4. **Run the Development Server**

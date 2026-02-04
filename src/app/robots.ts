@@ -1,12 +1,14 @@
 import { MetadataRoute } from 'next';
 
 export default function robots(): MetadataRoute.Robots {
+  const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000';
+  
   return {
     rules: {
       userAgent: '*',
       allow: '/',
-      disallow: ['/api/', '/_next/'],
+      disallow: ['/api/', '/_next/', '/account', '/credits'],
     },
-    sitemap: 'http://localhost:3000/sitemap.xml', // TODO: Update domain for production
+    sitemap: `${baseUrl}/sitemap.xml`,
   };
 }
