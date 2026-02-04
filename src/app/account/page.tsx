@@ -5,6 +5,8 @@ import { useAuth } from '@/lib/auth-context';
 import { useRouter } from 'next/navigation';
 import { updatePassword } from 'aws-amplify/auth';
 import { useLanguage } from '@/lib/language-context';
+import LanguageSelector from '@/components/sidebar/LanguageSelector';
+import { getAuthHeaders } from '@/lib/auth-helpers';
 
 interface Transaction {
   id: number;
@@ -49,7 +51,8 @@ export default function AccountPage() {
   async function fetchUserData() {
     try {
       if (!user?.userId) return;
-      const res = await fetch(`/api/user/me?userId=${user.userId}`);
+      const headers = await getAuthHeaders();
+      const res = await fetch('/api/user/me', { headers });
       if (res.ok) {
         const json = await res.json();
         setData(json);
@@ -98,6 +101,10 @@ export default function AccountPage() {
         </button>
       </div>
       
+      <div className="bg-white p-6 rounded-lg shadow-sm border border-gray-200">
+        <LanguageSelector />
+      </div>
+
       {/* Account Overview */}
       <div className="grid md:grid-cols-2 gap-6">
         <div className="bg-white p-6 rounded-lg shadow-sm border border-gray-200">
@@ -181,7 +188,9 @@ export default function AccountPage() {
                         tx.status === 'pending' ? 'text-yellow-600' :
                         'text-red-600'
                     }`}>
-                        {tx.status === 'succeeded' ? t.account.completed : (tx.status || 'unknown')}
+                        {tx.status === 'succeeded' ? t.account.completed : 
+                         tx.status === 'canceled' ? t.account.canceled :
+                         (tx.status || 'unknown')}
                     </td>
                   </tr>
                 ))

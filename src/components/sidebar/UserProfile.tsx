@@ -29,20 +29,20 @@ const UserProfile: React.FC<UserProfileProps> = ({ user, onLogout, onClose }) =>
       <Link
         href="/account"
         onClick={onClose}
-        className="w-full flex items-center justify-between p-3 rounded-xl transition-all duration-200 hover:bg-slate-50 text-slate-600 hover:text-indigo-600 group"
+        className="w-full flex items-center justify-between p-3 rounded-xl transition-all duration-200 hover:bg-slate-50 text-slate-600 hover:text-indigo-600 group active:scale-[0.98]"
       >
         <div className="flex items-center gap-3">
-          <UserIcon className="w-5 h-5 text-slate-400 group-hover:text-indigo-500" />
+          <UserIcon className="w-5 h-5 text-slate-400 group-hover:text-indigo-500 transition-colors" />
           <span className="font-medium text-sm">{t.main.account}</span>
         </div>
       </Link>
 
       <button
         onClick={onLogout}
-        className="w-full flex items-center justify-between p-3 rounded-xl transition-all duration-200 hover:bg-red-50 text-slate-600 hover:text-red-600 group mb-2"
+        className="w-full flex items-center justify-between p-3 rounded-xl transition-all duration-200 hover:bg-red-50 text-slate-600 hover:text-red-600 group mb-2 active:scale-[0.98]"
       >
         <div className="flex items-center gap-3">
-          <LogOut className="w-5 h-5 text-slate-400 group-hover:text-red-500" />
+          <LogOut className="w-5 h-5 text-slate-400 group-hover:text-red-500 transition-colors" />
           <span className="font-medium text-sm">{t.main.logout}</span>
         </div>
       </button>

@@ -20,32 +20,29 @@ const LanguageSelector: React.FC<LanguageSelectorProps> = ({ onLanguageChange })
 
   return (
     <>
-      <div className="px-1 mb-3">
-        <h2 className="text-xs font-semibold text-slate-900 uppercase tracking-wider">
-          {t.sidebar.languageSettings}
-        </h2>
-      </div>
 
-      <div className="bg-slate-50 rounded-xl p-1 flex mb-8">
+      <h2 className="text-xl font-bold mb-4">{t.sidebar.languageSettings}</h2>
+
+      <div className="flex gap-4">
         <button
           onClick={() => handleLanguageChange('en')}
-          className={`flex-1 flex items-center justify-center gap-2 py-2 rounded-lg text-sm font-medium transition-all ${
+          className={`flex-1 flex items-center justify-center gap-3 py-3 px-4 rounded-lg text-base font-medium transition-all border ${
             language === 'en'
-              ? 'bg-white text-indigo-600 shadow-sm border border-slate-100'
-              : 'text-slate-500 hover:text-slate-700'
+              ? 'bg-indigo-50 text-indigo-700 border-indigo-200 ring-2 ring-indigo-500 ring-offset-2'
+              : 'bg-white text-slate-600 border-slate-200 hover:border-slate-300 hover:bg-slate-50'
           }`}
           aria-label="Select English language"
           title={t.sidebar.english}
         >
-          <Languages className="w-4 h-4" />
+          <Languages className="w-5 h-5" />
           <span>{t.sidebar.english}</span>
         </button>
         <button
           onClick={() => handleLanguageChange('pl')}
-          className={`flex-1 flex items-center justify-center gap-2 py-2 rounded-lg text-sm font-medium transition-all ${
+          className={`flex-1 flex items-center justify-center gap-3 py-3 px-4 rounded-lg text-base font-medium transition-all border ${
             language === 'pl'
-              ? 'bg-white text-indigo-600 shadow-sm border border-slate-100'
-              : 'text-slate-500 hover:text-slate-700'
+              ? 'bg-indigo-50 text-indigo-700 border-indigo-200 ring-2 ring-indigo-500 ring-offset-2'
+              : 'bg-white text-slate-600 border-slate-200 hover:border-slate-300 hover:bg-slate-50'
           }`}
           aria-label="Wybierz język polski"
           title={t.sidebar.polish}

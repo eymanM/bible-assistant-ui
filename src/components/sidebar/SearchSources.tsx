@@ -44,6 +44,7 @@ const SearchSources: React.FC<SearchSourcesProps> = ({ settings, setSettings }) 
         {menuItems.map((item) => {
           const Icon = item.icon;
           const isActive = settings[item.key as keyof Settings];
+          const isPremium = item.key === 'insights';
 
           return (
             <button
@@ -60,10 +61,17 @@ const SearchSources: React.FC<SearchSourcesProps> = ({ settings, setSettings }) 
             >
               <div className="flex items-center gap-3">
                 <Icon className={`w-5 h-5 ${isActive ? 'text-indigo-600' : 'text-slate-400 group-hover:text-slate-600'}`} />
-                <span className="font-medium text-sm">{item.label}</span>
+                <div className="flex items-center gap-2">
+                  <span className="font-medium text-sm">{item.label}</span>
+                  {isPremium && (
+                    <span className="text-[10px] font-bold bg-gradient-to-r from-violet-500 to-fuchsia-500 text-white px-1.5 py-0.5 rounded shadow-sm">
+                      PREMIUM
+                    </span>
+                  )}
+                </div>
               </div>
               
-              <div className={`w-5 h-5 rounded-md border flex items-center justify-center transition-all ${
+              <div className={`w-5 h-5 ml-2 flex-shrink-0 rounded-md border flex items-center justify-center transition-all ${
                 isActive 
                   ? 'bg-indigo-600 border-indigo-600 shadow-sm' 
                   : 'border-slate-200 bg-white group-hover:border-slate-300'
