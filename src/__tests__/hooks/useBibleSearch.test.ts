@@ -30,6 +30,7 @@ describe('useBibleSearch Hook', () => {
       newTestament: true,
       commentary: false,
       insights: true,
+      media: true,
     });
     expect(result.current.results).toEqual({
       bible: [],
@@ -49,6 +50,7 @@ describe('useBibleSearch Hook', () => {
         newTestament: true,
         commentary: true,
         insights: false,
+        media: true,
       });
     });
 
@@ -57,6 +59,7 @@ describe('useBibleSearch Hook', () => {
       newTestament: true,
       commentary: true,
       insights: false,
+      media: true,
     });
   });
 
@@ -139,6 +142,7 @@ describe('useBibleSearch Hook', () => {
         newTestament: true,
         commentary: false,
         insights: false,
+        media: true,
       });
     });
 

@@ -1,6 +1,7 @@
 
 import { useInfiniteQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useAuth } from '../lib/auth-context';
+import { getAuthHeaders } from '../lib/auth-helpers';
 
 interface HistoryItem {
   id: number;
@@ -23,8 +24,10 @@ export const useSearchHistory = () => {
     queryFn: async ({ pageParam = 0 }) => {
       if (!user?.userId) return { history: [] };
       
+      const headers = await getAuthHeaders();
       const res = await fetch(
-        `/api/history?userId=${user.userId}&limit=20&offset=${pageParam}`
+        `/api/history?limit=20&offset=${pageParam}`,
+        { headers }
       );
       
       if (!res.ok) {
@@ -54,8 +57,10 @@ export const useSearchHistory = () => {
     mutationFn: async (id: number) => {
       if (!user?.userId) throw new Error('User not authenticated');
       
-      const res = await fetch(`/api/history?id=${id}&userId=${user.userId}`, {
+      const headers = await getAuthHeaders();
+      const res = await fetch(`/api/history?id=${id}`, {
         method: 'DELETE',
+        headers
       });
       
       if (!res.ok) {

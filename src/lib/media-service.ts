@@ -24,6 +24,8 @@ interface SerperImageItem {
 
 const pendingRequests = new Map<string, Promise<MediaItem[]>>();
 
+import { getOptionalAuthHeaders } from './auth-helpers';
+
 export async function searchMedia(query: string, language: string = 'en'): Promise<MediaItem[]> {
   if (!query) return [];
 
@@ -35,10 +37,19 @@ export async function searchMedia(query: string, language: string = 'en'): Promi
 
   const requestPromise = (async () => {
     try {
-        const response = await fetch(`/api/media-search?q=${encodeURIComponent(query)}&lang=${language}`);
+        const headers = await getOptionalAuthHeaders();
+        const queryParams = new URLSearchParams({
+            q: query,
+            lang: language
+        });
+        
+        const response = await fetch(`/api/media-search?${queryParams.toString()}`, {
+            headers
+        });
         
         if (!response.ok) {
-            return [];
+            const errorData = await response.json().catch(() => ({}));
+            throw new Error(errorData.error || `Media search failed: ${response.statusText}`);
         }
 
         const data = await response.json();
@@ -50,7 +61,7 @@ export async function searchMedia(query: string, language: string = 'en'): Promi
         return [];
 
     } catch (error) {
-        return [];
+        throw error;
     } finally {
         pendingRequests.delete(cacheKey);
     }

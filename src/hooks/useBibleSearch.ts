@@ -53,6 +53,7 @@ export const useBibleSearch = () => {
     if (lowerMsg.includes('unauthorized') || lowerMsg.includes('nieautoryzowany')) return t.apiErrors.unauthorized;
     if (lowerMsg.includes('failed to vote')) return t.apiErrors.failedToVote;
     if (lowerMsg.includes("'nonetype' object has no attribute 'stream'")) return t.apiErrors.internalError;
+    if (lowerMsg.includes('daily request limit exceeded') || lowerMsg.includes('server overloaded')) return t.apiErrors.rateLimitExceeded;
     
     return msg;
   }, [t]);
@@ -118,6 +119,9 @@ export const useBibleSearch = () => {
 
 
       if (!response.ok) {
+        if (response.status === 429) {
+             throw new Error('Daily request limit exceeded');
+        }
         throw new Error('Network response was not ok');
       }
 
