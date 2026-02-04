@@ -1,6 +1,9 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { API_DOMAIN } from '../../../config/apiConfig';
 import { pool } from '../../../lib/db';
+import { checkRateLimit } from '../../../lib/rate-limit';
+import { getOptionalUserId } from '@/lib/auth-middleware';
+import logger from '@/lib/logger';
 
 function delay(ms: number) {
   return new Promise(resolve => setTimeout(resolve, ms));
@@ -9,7 +12,18 @@ function delay(ms: number) {
 export async function POST(req: NextRequest) {
   try {
     const body = await req.json();
-    const { query, settings, userId } = body;
+    const { query, settings } = body;
+    
+    // Get userId from JWT if authenticated (optional)
+    const userId = await getOptionalUserId(req);
+
+    // Rate Limiting Check
+    if (userId) {
+       const allowed = await checkRateLimit(userId, 'general');
+       if (!allowed) {
+          return NextResponse.json({ error: 'Daily request limit exceeded' }, { status: 429 });
+       }
+    }
 
     // 1. Attempt to find cached result
     if (query && settings) {
@@ -78,7 +92,6 @@ export async function POST(req: NextRequest) {
                   await delay(10 + Math.random() * 10); // Simulate typing speed (10-20ms)
                 }
               } catch (e) {
-                console.error('Error in simulated stream:', e);
                 controller.error(e);
               } finally {
                 controller.close();
@@ -95,7 +108,6 @@ export async function POST(req: NextRequest) {
           });
         }
       } catch (dbError) {
-        console.warn('Error checking cache, falling back to live search:', dbError);
         // Continue to live search on error
       }
     }
@@ -119,7 +131,6 @@ export async function POST(req: NextRequest) {
       throw new Error('No response body from backend');
     }
 
-    // Forward the stream
     // Forward the stream and capture data for saving
     const encoder = new TextEncoder();
     const decoder = new TextDecoder();
@@ -172,9 +183,9 @@ export async function POST(req: NextRequest) {
       },
     });
   } catch (error) {
-    console.error('Proxy error:', error);
+    logger.error({ err: error }, 'Search proxy error');
     return NextResponse.json(
-      { error: error instanceof Error ? error.message : 'Internal Server Error' },
+      { error: 'Internal server error' },
       { status: 500 }
     );
   }

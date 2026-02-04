@@ -1,13 +1,14 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { deductCredits } from '../../../../lib/users';
+import { getUserIdFromRequest } from '@/lib/auth-middleware';
+import logger from '@/lib/logger';
 
 export async function POST(request: NextRequest) {
   try {
-    const { userId, amount = 1 } = await request.json();
-
-    if (!userId) {
-      return NextResponse.json({ error: 'User ID is required' }, { status: 400 });
-    }
+    // Get verified userId from JWT token
+    const userId = await getUserIdFromRequest(request);
+    
+    const { amount = 1 } = await request.json();
 
     const updatedUser = await deductCredits(userId, amount);
 
@@ -16,8 +17,11 @@ export async function POST(request: NextRequest) {
     }
 
     return NextResponse.json({ success: true, credits: updatedUser.credits });
-  } catch (error) {
-    console.error('Error deducting credits:', error);
+  } catch (error: any) {
+    if (error.message?.includes('token') || error.message?.includes('authorization')) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
+    logger.error({ err: error }, 'Error deducting credits');
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 }

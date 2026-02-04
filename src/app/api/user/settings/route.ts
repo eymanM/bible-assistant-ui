@@ -1,13 +1,19 @@
 
 import { NextRequest, NextResponse } from 'next/server';
 import { updateUserSettings, getUserByCognitoSub } from '@/lib/users';
+import { sanitizeUser } from '@/lib/sanitize-user';
+import { getUserIdFromRequest } from '@/lib/auth-middleware';
+import logger from '@/lib/logger';
 
 export async function POST(req: NextRequest) {
   try {
-    const { userId, settings } = await req.json();
+    // Get verified userId from JWT token
+    const userId = await getUserIdFromRequest(req);
+    
+    const { settings } = await req.json();
 
-    if (!userId || !settings) {
-      return NextResponse.json({ error: 'Missing userId or settings' }, { status: 400 });
+    if (!settings) {
+      return NextResponse.json({ error: 'Missing settings' }, { status: 400 });
     }
 
     // Verify user exists
@@ -22,9 +28,12 @@ export async function POST(req: NextRequest) {
 
     const updatedUser = await updateUserSettings(userId, newSettings);
 
-    return NextResponse.json({ user: updatedUser });
+    return NextResponse.json({ user: sanitizeUser(updatedUser) });
   } catch (error: any) {
-    console.error('Error updating settings:', error);
-    return NextResponse.json({ error: error.message }, { status: 500 });
+    if (error.message?.includes('token') || error.message?.includes('authorization')) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
+    logger.error({ err: error }, 'Error updating settings');
+    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 }

@@ -2,8 +2,9 @@ import { NextResponse } from 'next/server';
 import { pool } from '../../../lib/db';
 import { LIMITS } from '../../../config/limits';
 import { checkRateLimit } from '../../../lib/rate-limit';
+import { getOptionalUserId } from '../../../lib/auth-middleware';
+import logger from '@/lib/logger';
 
-// Custom sites configuration extracted from user request
 const POLISH_SITES = [
     'apologetyka.info', 
     'gosc.pl', 
@@ -62,14 +63,12 @@ interface SerperImageItem {
 }
 
 async function getCachedMedia(query: string, lang: string): Promise<{ items: MediaItem[] | null, diagnostics: any }> {
-  console.log(`Checking media_cache for query: "${query}", lang: "${lang}"`);
   const diagnostics: any = {};
   try {
-    // Check specific existence with expiration
     const result = await pool.query(
-      `SELECT data FROM media_cache 
+      `SELECT data FROM bible_assistant.media_cache 
        WHERE query = $1 AND lang = $2 
-       AND created_at > NOW() - INTERVAL '${LIMITS.MEDIA_CACHE_EXPIRATION_DAYS} days'`,
+       AND updated_at > NOW() - INTERVAL '${LIMITS.MEDIA_CACHE_EXPIRATION_DAYS} days'`,
       [query, lang]
     );
     diagnostics.resultCount = result.rows.length;
@@ -79,27 +78,22 @@ async function getCachedMedia(query: string, lang: string): Promise<{ items: Med
     }
     return { items: null, diagnostics };
   } catch (error: any) {
-    console.warn('Failed to fetch from media_cache:', error);
     return { items: null, diagnostics: { ...diagnostics, fatalError: error.message } };
   }
 }
 
 async function saveCachedMedia(query: string, lang: string, data: MediaItem[]) {
-  console.log(`Attempting to save to media_cache. Query: "${query}", Lang: "${lang}", Items: ${data.length}`);
-  if (!process.env.DATABASE_URL) {
-      console.error('CRITICAL: DATABASE_URL is not defined in API route!');
-  }
   try {
+    // JSONB columns require JSON-stringified data
     const res = await pool.query(
-      `INSERT INTO media_cache (query, lang, data)
-       VALUES ($1, $2, $3)
-       ON CONFLICT (query, lang) DO UPDATE SET data = $3, created_at = NOW() RETURNING id`,
+      `INSERT INTO bible_assistant.media_cache (query, lang, data)
+       VALUES ($1, $2, $3::jsonb)
+       ON CONFLICT (query, lang) DO UPDATE SET data = $3::jsonb
+       RETURNING query, lang`,
       [query, lang, JSON.stringify(data)]
     );
-    console.log('Successfully saved to media_cache. Inserted/Updated ID:', res.rows[0]?.id);
   } catch (error: any) {
-    console.error('Failed to save to media_cache:', error);
-    console.error('DB Error Detail:', error.message, error.code, error.detail);
+    logger.error({ err: error }, 'Failed to save to media_cache');
   }
 }
 
@@ -107,7 +101,10 @@ export async function GET(request: Request) {
   const { searchParams } = new URL(request.url);
   const query = searchParams.get('q');
   const lang = searchParams.get('lang') || 'en';
-  const userId = searchParams.get('userId');
+  // Use secure token-based user ID extraction
+  // Casting to NextRequest is implicitly handled or we might strictly cast if needed, 
+  // but standard Request works with most Next.js helpers now or we can cast
+  const userId = await getOptionalUserId(request as any);
 
   if (!query) {
     return NextResponse.json({ items: [] });
@@ -131,23 +128,21 @@ export async function GET(request: Request) {
       return NextResponse.json({ images: cached, cached: true, debugDiagnostics });
     }
   } catch (e) {
-    console.error('Cache check failed, proceeding to fetch', e);
+    // Cache check failed, proceed to fetch
   }
 
   const apiKey = process.env.SERPER_API_KEY;
 
   if (!apiKey) {
-    console.error('Serper API key is missing in backend.');
+    logger.error('Serper API key is missing');
     return NextResponse.json({ error: 'Configuration error' }, { status: 500 });
   }
 
   try {
-    // Select sites based on language
     const sitesToSearch = lang === 'pl' ? POLISH_SITES : ENGLISH_SITES;
     
     let finalQuery = query;
 
-    // Construct the query with site filtering
     if (sitesToSearch.length > 0) {
         const siteFilter = sitesToSearch.map(site => `site:${site}`).join(' OR ');
         // Specific subdomain exclusions + generic URL keyword exclusions
@@ -158,8 +153,6 @@ export async function GET(request: Request) {
     const gl = lang === 'pl' ? 'pl' : 'us';
     const hl = lang === 'pl' ? 'pl' : 'en';
 
-    console.log('DEBUG: finalQuery sent to Serper:', finalQuery);
-
     const response = await fetch('https://google.serper.dev/images', {
       method: 'POST',
       headers: {
@@ -169,14 +162,14 @@ export async function GET(request: Request) {
       body: JSON.stringify({
         q: finalQuery,
         num: 3,
-        gl: gl, // Country
-        hl: hl  // Language
+        gl: gl,
+        hl: hl
       })
     });
 
     if (!response.ok) {
         const errorData = await response.json().catch(() => ({ error: response.statusText }));
-        console.error('Serper API Error:', errorData);
+        logger.warn({ status: response.status }, 'Serper API error');
         return NextResponse.json(errorData, { status: response.status });
     }
 
@@ -196,7 +189,6 @@ export async function GET(request: Request) {
 
     // Save to Cache
     if (mediaItems.length > 0) {
-        // Await to ensure completion
         await saveCachedMedia(query, lang, mediaItems);
     }
 
@@ -209,7 +201,7 @@ export async function GET(request: Request) {
         debugDiagnostics
     });
   } catch (error) {
-    console.error('Failed to fetch from Serper API:', error);
-    return NextResponse.json({ error: 'Internal Server Error' }, { status: 500 });
+    logger.error({ err: error }, 'Failed to fetch from Serper API');
+    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 }

@@ -1,18 +1,18 @@
 
 import { NextRequest, NextResponse } from 'next/server';
 import { pool } from '../../../lib/db';
+import { getUserIdFromRequest } from '@/lib/auth-middleware';
+import logger from '@/lib/logger';
 
 export async function GET(req: NextRequest) {
-  const searchParams = req.nextUrl.searchParams;
-  const userId = searchParams.get('userId');
-  const limit = parseInt(searchParams.get('limit') || '100');
-  const offset = parseInt(searchParams.get('offset') || '0');
-
-  if (!userId) {
-    return NextResponse.json({ error: 'Missing userId' }, { status: 400 });
-  }
-
   try {
+    // Get verified userId from JWT token
+    const userId = await getUserIdFromRequest(req);
+    
+    const searchParams = req.nextUrl.searchParams;
+    const limit = parseInt(searchParams.get('limit') || '100');
+    const offset = parseInt(searchParams.get('offset') || '0');
+
     const result = await pool.query(
       `SELECT us.id as history_id, us.user_id, us.thumbs_up, us.thumbs_down, us.created_at,
               s.id as search_id, s.query, s.response, s.bible_results, s.commentary_results, s.language, s.settings
@@ -24,35 +24,68 @@ export async function GET(req: NextRequest) {
       [userId, limit, offset]
     );
 
-    // Parse JSON fields
-    const history = result.rows.map(row => ({
-      id: row.history_id, // Frontend expects 'id' for the history item
-      user_id: row.user_id,
-      query: row.query,
-      response: row.response,
-      bible_results: row.bible_results ? JSON.parse(row.bible_results) : [],
-      commentary_results: row.commentary_results ? JSON.parse(row.commentary_results) : [],
-      settings: row.settings || null,
-      language: row.language,
-      thumbs_up: row.thumbs_up ? 1 : 0, // Convert boolean to count for frontend compatibility if needed, or just boolean
-      thumbs_down: row.thumbs_down ? 1 : 0,
-      created_at: row.created_at
-    }));
+    // Parse JSON fields with defensive type checking
+    const history = result.rows.map(row => {
+      // Safely parse bible_results
+      let bibleResults = [];
+      if (row.bible_results) {
+        try {
+          bibleResults = typeof row.bible_results === 'string' 
+            ? JSON.parse(row.bible_results) 
+            : row.bible_results;
+        } catch (e) {
+          bibleResults = [];
+        }
+      }
+
+      // Safely parse commentary_results
+      let commentaryResults = [];
+      if (row.commentary_results) {
+        try {
+          commentaryResults = typeof row.commentary_results === 'string' 
+            ? JSON.parse(row.commentary_results) 
+            : row.commentary_results;
+        } catch (e) {
+          commentaryResults = [];
+        }
+      }
+
+      return {
+        id: row.history_id, // Frontend expects 'id' for the history item
+        user_id: row.user_id,
+        query: row.query,
+        response: row.response,
+        bible_results: bibleResults,
+        commentary_results: commentaryResults,
+        settings: row.settings || null,
+        language: row.language,
+        thumbs_up: row.thumbs_up ? 1 : 0, // Convert boolean to count for frontend compatibility if needed, or just boolean
+        thumbs_down: row.thumbs_down ? 1 : 0,
+        created_at: row.created_at
+      };
+    });
 
     return NextResponse.json({ history });
-  } catch (error) {
-    console.error('Error fetching history:', error);
-    return NextResponse.json({ error: 'Internal Server Error' }, { status: 500 });
+  } catch (error: any) {
+    if (error.message?.includes('token') || error.message?.includes('authorization')) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
+    logger.error({ err: error }, 'Error fetching history');
+    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 }
+
 
 export async function POST(req: NextRequest) {
   try {
     const body = await req.json();
-    const { userId, query, response, bible_results, commentary_results, language, settings } = body;
+    const { query, response, bible_results, commentary_results, language, settings } = body;
+    
+    // Get verified userId from JWT token
+    const userId = await getUserIdFromRequest(req);
 
-    if (!userId || !query) {
-      return NextResponse.json({ error: 'Missing userId or query' }, { status: 400 });
+    if (!query) {
+      return NextResponse.json({ error: 'Missing query' }, { status: 400 });
     }
 
     const client = await pool.connect();
@@ -135,9 +168,12 @@ export async function POST(req: NextRequest) {
     } finally {
       client.release();
     }
-  } catch (error) {
-    console.error('Error saving history:', error);
-    return NextResponse.json({ error: 'Internal Server Error' }, { status: 500 });
+  } catch (error: any) {
+    if (error.message?.includes('token') || error.message?.includes('authorization')) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
+    logger.error({ err: error }, 'Error saving history');
+    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 }
 
@@ -145,10 +181,12 @@ export async function DELETE(req: NextRequest) {
   try {
     const searchParams = req.nextUrl.searchParams;
     const id = searchParams.get('id');
-    const userId = searchParams.get('userId');
+    
+    // Get verified userId from JWT token
+    const userId = await getUserIdFromRequest(req);
 
-    if (!id || !userId) {
-      return NextResponse.json({ error: 'Missing id or userId' }, { status: 400 });
+    if (!id) {
+      return NextResponse.json({ error: 'Missing id' }, { status: 400 });
     }
 
     // Delete only from user_searches
@@ -162,8 +200,11 @@ export async function DELETE(req: NextRequest) {
     }
 
     return NextResponse.json({ success: true });
-  } catch (error) {
-    console.error('Error deleting history:', error);
-    return NextResponse.json({ error: 'Internal Server Error' }, { status: 500 });
+  } catch (error: any) {
+    if (error.message?.includes('token') || error.message?.includes('authorization')) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
+    logger.error({ err: error }, 'Error deleting history');
+    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 }
