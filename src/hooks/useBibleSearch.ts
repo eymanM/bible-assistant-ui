@@ -1,4 +1,4 @@
-import { useState, useCallback, useRef } from 'react';
+import { useState, useCallback, useRef, useEffect } from 'react';
 
 import { useAuth } from '../lib/auth-context';
 import { useLanguage } from '../lib/language-context';
@@ -66,11 +66,77 @@ export const useBibleSearch = () => {
     }
   }, [getTranslatedError]);
 
-  const { user } = useAuth();
+  const { user, dbUser } = useAuth();
   const [historyRefreshTrigger, setHistoryRefreshTrigger] = useState(0);
   const [currentHistoryId, setCurrentHistoryId] = useState<number | null>(null);
   const [currentSearchId, setCurrentSearchId] = useState<number | null>(null);
   const [voteStatus, setVoteStatus] = useState<'up' | 'down' | null>(null);
+
+  // Load settings from DB when user loads
+  useEffect(() => {
+    if (dbUser?.settings) {
+      setSettings(prev => {
+        // Simple equality check to avoid infinite loops if objects are same ref/value
+        // But since dbUser.settings comes from API, strictly it's a new object each time dbUser changes
+        // checking keys is safer
+        const newSettings = { ...prev, ...dbUser.settings };
+        
+        if (JSON.stringify(prev) === JSON.stringify(newSettings)) {
+            return prev;
+        }
+        return newSettings;
+      });
+    }
+  }, [dbUser]);
+
+  // Auto-save settings when they change
+  useEffect(() => {
+    if (!user || !dbUser) return;
+
+    const timer = setTimeout(async () => {
+        // Don't save if matches DB (avoid saving on initial load)
+        if (dbUser.settings && JSON.stringify(settings) === JSON.stringify({ ...settings, ...dbUser.settings })) {
+             // This check is a bit weak because dbUser.settings might be partial. 
+             // Logic: If current settings == merge(current, db), it means they are effectively consistent?
+             // Actually, simplest is: if current settings are different from what we think DB has.
+             // But we don't know what DB has if dbUser is stale.
+             // Let's just save. The API overhead is low for a sidebar toggle.
+        }
+        
+        // Better check: compare with dbUser settings directly if available, assuming dbUser settings are the "source of truth" until changed
+        const mergedDbSettings = { ...settings, ...(dbUser.settings || {}) }; // This is wrong direction.
+        // We want to compare "current settings" vs "dbUser.settings updated with defaults"
+        
+        const lastKnownDbSettings = { 
+            oldTestament: true,
+            newTestament: true,
+            commentary: false,
+            insights: true,
+            media: false,
+            ...dbUser.settings 
+        };
+        
+        // Only save if different from last known DB state
+        // We need to match the keys we care about
+        const keysToCompare = ['oldTestament', 'newTestament', 'commentary', 'insights', 'media'] as const;
+        const isDifferent = keysToCompare.some(k => settings[k] !== lastKnownDbSettings[k]);
+
+        if (isDifferent) {
+            try {
+                const headers = await getAuthHeaders();
+                await fetch('/api/user/settings', {
+                    method: 'POST',
+                    headers,
+                    body: JSON.stringify({ settings })
+                });
+            } catch (err) {
+                console.error('Failed to save settings', err);
+            }
+        }
+    }, 1000);
+
+    return () => clearTimeout(timer);
+  }, [settings, user, dbUser]);
 
   const search = useCallback(async (searchQuery: string) => {
     if (loadingRef.current) return;
