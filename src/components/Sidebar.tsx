@@ -9,6 +9,7 @@ import { version } from '../../package.json';
 import { useLanguage } from '../lib/language-context';
 import SearchSources from './sidebar/SearchSources';
 import UserProfile from './sidebar/UserProfile';
+import { SearchSettings } from '@/lib/search-settings';
 
 const AboutModal = dynamic(() => import('./AboutModal'), { ssr: false });
 const HistoryModal = dynamic(() => import('./HistoryModal'), { ssr: false });
@@ -22,23 +23,11 @@ interface SidebarProps {
   /**
    * Configuration settings for search sources.
    */
-  settings: {
-    oldTestament: boolean;
-    newTestament: boolean;
-    commentary: boolean;
-    insights: boolean;
-    media: boolean;
-  };
+  settings: SearchSettings;
   /**
    * State setter for settings.
    */
-  setSettings: React.Dispatch<React.SetStateAction<{
-    oldTestament: boolean;
-    newTestament: boolean;
-    commentary: boolean;
-    insights: boolean;
-    media: boolean;
-  }>>;
+  setSettings: React.Dispatch<React.SetStateAction<SearchSettings>>;
   query: string;
   onSearch: (query: string) => void;
   onHistoryClick: (item: { query: string; response?: string; bible_results?: string[]; commentary_results?: string[] }) => void;

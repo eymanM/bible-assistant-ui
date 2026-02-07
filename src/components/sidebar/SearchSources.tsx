@@ -3,24 +3,17 @@
 import React from 'react';
 import { MessageSquareText, BookOpen, Scroll, Lightbulb, Check, MonitorPlay } from 'lucide-react';
 import { useLanguage } from '@/lib/language-context';
-
-interface Settings {
-  oldTestament: boolean;
-  newTestament: boolean;
-  commentary: boolean;
-  insights: boolean;
-  media: boolean;
-}
+import { SearchSettings } from '@/lib/search-settings';
 
 interface SearchSourcesProps {
-  settings: Settings;
-  setSettings: React.Dispatch<React.SetStateAction<Settings>>;
+  settings: SearchSettings;
+  setSettings: React.Dispatch<React.SetStateAction<SearchSettings>>;
 }
 
 const SearchSources: React.FC<SearchSourcesProps> = ({ settings, setSettings }) => {
   const { t } = useLanguage();
 
-  const handleToggle = (key: keyof Settings) => {
+  const handleToggle = (key: keyof SearchSettings) => {
     setSettings((prev) => ({ ...prev, [key]: !prev[key] }));
   };
 
@@ -43,13 +36,13 @@ const SearchSources: React.FC<SearchSourcesProps> = ({ settings, setSettings }) 
       <div className="space-y-2 mb-8">
         {menuItems.map((item) => {
           const Icon = item.icon;
-          const isActive = settings[item.key as keyof Settings];
+          const isActive = settings[item.key as keyof SearchSettings];
           const isPremium = item.key === 'insights';
 
           return (
             <button
               key={item.key}
-              onClick={() => handleToggle(item.key as keyof Settings)}
+              onClick={() => handleToggle(item.key as keyof SearchSettings)}
               className={`w-full flex items-center justify-between p-3 rounded-xl transition-all duration-200 group ${
                 isActive 
                   ? 'bg-indigo-50 text-indigo-700 border border-indigo-100' 

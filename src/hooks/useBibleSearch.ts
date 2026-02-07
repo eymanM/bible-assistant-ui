@@ -3,14 +3,12 @@ import { useState, useCallback, useRef, useEffect } from 'react';
 import { useAuth } from '../lib/auth-context';
 import { useLanguage } from '../lib/language-context';
 import { getAuthHeaders, getOptionalAuthHeaders } from '../lib/auth-helpers';
-
-interface BibleSearchSettings {
-  oldTestament: boolean;
-  newTestament: boolean;
-  commentary: boolean;
-  insights: boolean;
-  media: boolean;
-}
+import {
+  areSearchSettingsEqual,
+  DEFAULT_SEARCH_SETTINGS,
+  normalizeSearchSettings,
+  SearchSettings
+} from '../lib/search-settings';
 
 interface SearchResponse {
   bible_results: string[];
@@ -20,13 +18,7 @@ interface SearchResponse {
 
 export const useBibleSearch = () => {
   const [query, setQuery] = useState('');
-  const [settings, setSettings] = useState<BibleSearchSettings>({
-    oldTestament: true,
-    newTestament: true,
-    commentary: false,
-    insights: true,
-    media: false
-  });
+  const [settings, setSettings] = useState<SearchSettings>(DEFAULT_SEARCH_SETTINGS);
   const { language, t } = useLanguage();
   const [results, setResults] = useState<{
     bible: string[];
@@ -40,6 +32,8 @@ export const useBibleSearch = () => {
   const [loading, setLoading] = useState(false);
   const loadingRef = useRef(false); // Ref to track loading state synchronously
   const [error, setError] = useState<string | null>(null);
+  const llmBufferRef = useRef('');
+  const flushTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   const getTranslatedError = useCallback((msg: string) => {
     if (!msg) return t.apiErrors.internalError;
@@ -76,15 +70,8 @@ export const useBibleSearch = () => {
   useEffect(() => {
     if (dbUser?.settings) {
       setSettings(prev => {
-        // Simple equality check to avoid infinite loops if objects are same ref/value
-        // But since dbUser.settings comes from API, strictly it's a new object each time dbUser changes
-        // checking keys is safer
-        const newSettings = { ...prev, ...dbUser.settings };
-        
-        if (JSON.stringify(prev) === JSON.stringify(newSettings)) {
-            return prev;
-        }
-        return newSettings;
+        const next = normalizeSearchSettings({ ...prev, ...dbUser.settings });
+        return areSearchSettingsEqual(prev, next) ? prev : next;
       });
     }
   }, [dbUser]);
@@ -107,19 +94,8 @@ export const useBibleSearch = () => {
         const mergedDbSettings = { ...settings, ...(dbUser.settings || {}) }; // This is wrong direction.
         // We want to compare "current settings" vs "dbUser.settings updated with defaults"
         
-        const lastKnownDbSettings = { 
-            oldTestament: true,
-            newTestament: true,
-            commentary: false,
-            insights: true,
-            media: false,
-            ...dbUser.settings 
-        };
-        
-        // Only save if different from last known DB state
-        // We need to match the keys we care about
-        const keysToCompare = ['oldTestament', 'newTestament', 'commentary', 'insights', 'media'] as const;
-        const isDifferent = keysToCompare.some(k => settings[k] !== lastKnownDbSettings[k]);
+        const lastKnownDbSettings = normalizeSearchSettings(dbUser.settings);
+        const isDifferent = !areSearchSettingsEqual(settings, lastKnownDbSettings);
 
         if (isDifferent) {
             try {
@@ -143,6 +119,11 @@ export const useBibleSearch = () => {
     setQuery(searchQuery);
     setLoading(true);
     loadingRef.current = true;
+    llmBufferRef.current = '';
+    if (flushTimerRef.current) {
+      clearTimeout(flushTimerRef.current);
+      flushTimerRef.current = null;
+    }
     
     setTranslatedError(null);
     setCurrentHistoryId(null);
@@ -271,10 +252,20 @@ export const useBibleSearch = () => {
                 if (cleanToken) {
                   tempResults.llmResponse += cleanToken;
                   hasResults = true;
-                  setResults(prev => ({
-                    ...prev,
-                    llmResponse: prev.llmResponse + cleanToken
-                  }));
+                  llmBufferRef.current += cleanToken;
+                  if (!flushTimerRef.current) {
+                    flushTimerRef.current = setTimeout(() => {
+                      if (llmBufferRef.current) {
+                        const chunk = llmBufferRef.current;
+                        llmBufferRef.current = '';
+                        setResults(prev => ({
+                          ...prev,
+                          llmResponse: prev.llmResponse + chunk
+                        }));
+                      }
+                      flushTimerRef.current = null;
+                    }, 33);
+                  }
                 }
               }
             } catch (e) {
@@ -322,6 +313,18 @@ export const useBibleSearch = () => {
         }
       }
 
+      if (flushTimerRef.current) {
+        clearTimeout(flushTimerRef.current);
+        flushTimerRef.current = null;
+      }
+      if (llmBufferRef.current) {
+        const chunk = llmBufferRef.current;
+        llmBufferRef.current = '';
+        setResults(prev => ({
+          ...prev,
+          llmResponse: prev.llmResponse + chunk
+        }));
+      }
 
 
       // Save to history if we have results and a user
@@ -401,13 +404,18 @@ export const useBibleSearch = () => {
       bible_results?: string[]; 
       commentary_results?: string[];
       language?: string;
-      settings?: any;
+      settings?: Partial<SearchSettings>;
       thumbs_up?: number | boolean;
       thumbs_down?: number | boolean;
       id?: number;
     },
     setLanguage?: (lang: 'en' | 'pl') => void
   ) => {
+    llmBufferRef.current = '';
+    if (flushTimerRef.current) {
+      clearTimeout(flushTimerRef.current);
+      flushTimerRef.current = null;
+    }
     setQuery(historyItem.query);
     setResults({
       bible: historyItem.bible_results || [],
@@ -417,7 +425,7 @@ export const useBibleSearch = () => {
     
     // Restore settings if available
     if (historyItem.settings) {
-      setSettings(historyItem.settings);
+      setSettings(normalizeSearchSettings(historyItem.settings));
     }
     
     // Restore language if available and setLanguage is provided

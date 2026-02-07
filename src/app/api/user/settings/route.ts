@@ -4,6 +4,7 @@ import { updateUserSettings, getUserByCognitoSub } from '@/lib/users';
 import { sanitizeUser } from '@/lib/sanitize-user';
 import { getUserIdFromRequest } from '@/lib/auth-middleware';
 import logger from '@/lib/logger';
+import { SEARCH_SETTINGS_KEYS } from '@/lib/search-settings';
 
 export async function POST(req: NextRequest) {
   try {
@@ -16,6 +17,20 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: 'Missing settings' }, { status: 400 });
     }
 
+    const nextSettings: Record<string, unknown> = {};
+    for (const key of SEARCH_SETTINGS_KEYS) {
+      if (typeof settings[key] === 'boolean') {
+        nextSettings[key] = settings[key];
+      }
+    }
+    if (settings.language === 'en' || settings.language === 'pl') {
+      nextSettings.language = settings.language;
+    }
+
+    if (Object.keys(nextSettings).length === 0) {
+      return NextResponse.json({ error: 'No valid settings provided' }, { status: 400 });
+    }
+
     // Verify user exists
     const user = await getUserByCognitoSub(userId);
     if (!user) {
@@ -24,7 +39,7 @@ export async function POST(req: NextRequest) {
 
     // Merge with existing settings
     const existingSettings = user.settings || {};
-    const newSettings = { ...existingSettings, ...settings };
+    const newSettings = { ...existingSettings, ...nextSettings };
 
     const updatedUser = await updateUserSettings(userId, newSettings);
 
