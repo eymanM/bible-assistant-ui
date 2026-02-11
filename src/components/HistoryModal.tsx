@@ -24,6 +24,53 @@ export default function HistoryModal({ isOpen, onClose, onHistoryClick }: Histor
   } = useSearchHistory();
   
   const scrollRef = React.useRef<HTMLDivElement>(null);
+  const dialogRef = React.useRef<HTMLDivElement>(null);
+
+  React.useEffect(() => {
+    if (!isOpen) return;
+    const previousOverflow = document.body.style.overflow;
+    document.body.style.overflow = 'hidden';
+
+    const getFocusable = () => {
+      const root = dialogRef.current;
+      if (!root) return [];
+      return Array.from(
+        root.querySelectorAll<HTMLElement>(
+          'a[href], button, textarea, input, select, [tabindex]:not([tabindex="-1"])'
+        )
+      ).filter(el => !el.hasAttribute('disabled') && !el.getAttribute('aria-hidden'));
+    };
+
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') {
+        onClose();
+        return;
+      }
+      if (e.key === 'Tab') {
+        const focusable = getFocusable();
+        if (focusable.length === 0) return;
+        const first = focusable[0];
+        const last = focusable[focusable.length - 1];
+        const active = document.activeElement;
+
+        if (e.shiftKey && active === first) {
+          e.preventDefault();
+          last.focus();
+        } else if (!e.shiftKey && active === last) {
+          e.preventDefault();
+          first.focus();
+        }
+      }
+    };
+    document.addEventListener('keydown', handleKeyDown);
+    if (dialogRef.current) {
+      dialogRef.current.focus();
+    }
+    return () => {
+      document.body.style.overflow = previousOverflow;
+      document.removeEventListener('keydown', handleKeyDown);
+    };
+  }, [isOpen, onClose]);
 
   const handleScroll = React.useCallback((e: React.UIEvent<HTMLDivElement>) => {
     const target = e.currentTarget;
@@ -48,16 +95,24 @@ export default function HistoryModal({ isOpen, onClose, onHistoryClick }: Histor
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm p-4 animate-in fade-in duration-200">
-      <div className="bg-white rounded-2xl shadow-2xl w-full max-w-2xl h-[600px] flex flex-col">
+      <div
+        ref={dialogRef}
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="history-title"
+        tabIndex={-1}
+        className="bg-white rounded-2xl shadow-2xl w-full max-w-2xl h-[600px] flex flex-col outline-none"
+      >
         {/* Header */}
         <div className="bg-indigo-600 px-6 py-4 flex items-center justify-between rounded-t-2xl flex-shrink-0">
-          <h2 className="text-xl font-bold text-white flex items-center gap-2">
+          <h2 id="history-title" className="text-xl font-bold text-white flex items-center gap-2">
             <History size={24} />
             {t.history.title}
           </h2>
           <button 
             onClick={onClose}
             className="text-white/80 hover:text-white transition-colors p-1 hover:bg-white/10 rounded-lg"
+            aria-label="Close history dialog"
           >
             <X size={24} />
           </button>
