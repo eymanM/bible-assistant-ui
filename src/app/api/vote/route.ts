@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { pool } from '../../../lib/db';
-import { getUserIdFromRequest, getOptionalUserId } from '@/lib/auth-middleware';
+import { getUserIdFromRequest } from '@/lib/auth-middleware';
 import logger from '@/lib/logger';
 
 export async function POST(req: NextRequest) {
@@ -8,8 +8,8 @@ export async function POST(req: NextRequest) {
     const body = await req.json();
     const { historyId, searchId, voteType } = body;
     
-    // Get verified userId from JWT token (optional for cached searches)
-    const userId = await getOptionalUserId(req);
+    // Require auth for voting
+    const userId = await getUserIdFromRequest(req);
 
     if (!['up', 'down'].includes(voteType)) {
       return NextResponse.json({ error: 'Invalid vote type' }, { status: 400 });
@@ -17,8 +17,8 @@ export async function POST(req: NextRequest) {
 
     let finalHistoryId = historyId;
 
-    // If no historyId but we have searchId + userId, create the user_searches link
-    if (!historyId && searchId && userId) {
+    // If no historyId but we have searchId, create the user_searches link
+    if (!historyId && searchId) {
       try {
         const linkRes = await pool.query(
           `INSERT INTO bible_assistant.user_searches (user_id, search_id)
@@ -48,7 +48,7 @@ export async function POST(req: NextRequest) {
     }
 
     if (!finalHistoryId) {
-      return NextResponse.json({ error: 'Invalid parameters: need historyId or (searchId + userId)' }, { status: 400 });
+      return NextResponse.json({ error: 'Invalid parameters: need historyId or searchId' }, { status: 400 });
     }
 
     const isUp = voteType === 'up';
@@ -58,13 +58,13 @@ export async function POST(req: NextRequest) {
     const result = await pool.query(
       `UPDATE bible_assistant.user_searches 
        SET thumbs_up = $1, thumbs_down = $2
-       WHERE id = $3 
+       WHERE id = $3 AND user_id = $4
        RETURNING thumbs_up, thumbs_down`,
-      [isUp, !isUp, finalHistoryId]
+      [isUp, !isUp, finalHistoryId, userId]
     );
 
     if (result.rowCount === 0) {
-      return NextResponse.json({ error: 'History item not found' }, { status: 404 });
+      return NextResponse.json({ error: 'History item not found or unauthorized' }, { status: 404 });
     }
 
     // Return current state and the historyId so frontend can update its state
