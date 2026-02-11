@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useMemo } from 'react';
 import { Network, BookOpen, Heart, Sparkles, Lightbulb, Link as LinkIcon } from 'lucide-react';
 
 interface AIInsightsProps {
@@ -9,25 +9,20 @@ interface ParsedSection {
   title: string;
   body: string;
   type: 'connections' | 'theology' | 'application' | 'general';
+  parts: Array<{ type: 'text'; value: string } | { type: 'citation'; value: string }>;
 }
 
 const AIInsights: React.FC<AIInsightsProps> = ({ content }) => {
-  // Parsing logic for [1], [2] citations
-  const renderWithCitations = (text: string) => {
-    // Regex to match [number]
-    const parts = text.split(/(\[\d+\])/g);
-    
-    return parts.map((part, index) => {
-      if (part.match(/^\[\d+\]$/)) {
-        const num = part.replace(/[\[\]]/g, '');
-        return (
-          <sup key={index} className="inline-flex items-center justify-center w-5 h-5 ml-0.5 text-[10px] font-bold text-slate-500 bg-slate-100 rounded-full border border-slate-200 cursor-pointer hover:bg-indigo-100 hover:text-indigo-600 hover:border-indigo-200 transition-colors -translate-y-1">
-            {num}
-          </sup>
-        );
-      }
-      return <span key={index}>{part}</span>;
-    });
+  const splitCitations = (text: string): ParsedSection['parts'] => {
+    const rawParts = text.split(/(\[\d+\])/g);
+    return rawParts
+      .filter(part => part.length > 0)
+      .map(part => {
+        if (/^\[\d+\]$/.test(part)) {
+          return { type: 'citation', value: part.replace(/[\[\]]/g, '') };
+        }
+        return { type: 'text', value: part };
+      });
   };
 
   const parseContent = (text: string): ParsedSection[] => {
@@ -45,17 +40,17 @@ const AIInsights: React.FC<AIInsightsProps> = ({ content }) => {
              else if (h.includes('theological') || h.includes('znaczenie teologiczne')) type = 'theology';
              else if (h.includes('call for you') || h.includes('wezwanie')) type = 'application';
 
-             sections.push({ title: header.replace(':', ''), body, type });
+             sections.push({ title: header.replace(':', ''), body, type, parts: splitCitations(body) });
         }
       }
       
       if (sections.length === 0 && text.trim()) {
-           return [{ title: 'Przewidywana odpowiedź', body: text, type: 'general' }];
+           return [{ title: 'Przewidywana odpowiedź', body: text, type: 'general', parts: splitCitations(text) }];
       }
       return sections;
   };
 
-  const sections = parseContent(content);
+  const sections = useMemo(() => parseContent(content), [content]);
 
   if (sections.length === 0) return null;
 
@@ -103,7 +98,16 @@ const AIInsights: React.FC<AIInsightsProps> = ({ content }) => {
               {section.title}
             </h3>
             <p className="text-slate-700 leading-relaxed text-base md:text-base whitespace-pre-wrap break-words pl-0.5">
-              {renderWithCitations(section.body)}
+              {section.parts.map((part, index) => {
+                if (part.type === 'citation') {
+                  return (
+                    <sup key={index} className="inline-flex items-center justify-center w-5 h-5 ml-0.5 text-[10px] font-bold text-slate-500 bg-slate-100 rounded-full border border-slate-200 cursor-pointer hover:bg-indigo-100 hover:text-indigo-600 hover:border-indigo-200 transition-colors -translate-y-1">
+                      {part.value}
+                    </sup>
+                  );
+                }
+                return <span key={index}>{part.value}</span>;
+              })}
             </p>
           </div>
         );
