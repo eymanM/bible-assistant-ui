@@ -110,6 +110,10 @@ export async function GET(request: Request) {
     return NextResponse.json({ items: [] });
   }
 
+  if (query.length > 200) {
+    return NextResponse.json({ error: 'Query too long' }, { status: 400 });
+  }
+
   // Rate Limiting Check
   if (userId) {
     const allowed = await checkRateLimit(userId, 'media');
@@ -193,12 +197,15 @@ export async function GET(request: Request) {
     }
 
 
-    return NextResponse.json({ 
-        images: mediaItems, 
-        cached: false, 
-        debugQuery: finalQuery, 
+    const isProd = process.env.NODE_ENV === 'production';
+    return NextResponse.json({
+      images: mediaItems,
+      cached: false,
+      ...(isProd ? {} : {
+        debugQuery: finalQuery,
         debugParams: { query, lang },
         debugDiagnostics
+      })
     });
   } catch (error) {
     logger.error({ err: error }, 'Failed to fetch from Serper API');
