@@ -103,6 +103,7 @@ export interface Translation {
   privacy: {
     title: string;
     subtitle: string;
+    lastUpdated: string;
     introTitle: string;
     introText: string;
     dataCollectTitle: string;
