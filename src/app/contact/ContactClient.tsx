@@ -10,6 +10,11 @@ export default function ContactClient() {
   return (
     <main className="min-h-screen bg-slate-50">
       <div className="container mx-auto px-4 py-16 max-w-5xl">
+        <div className="mb-8">
+          <Link href="/" className="text-slate-500 hover:text-indigo-600 flex items-center gap-2 text-sm font-medium transition-colors">
+            {t.account.backToHome}
+          </Link>
+        </div>
         <div className="text-center mb-16">
           <h1 className="text-4xl md:text-5xl font-extrabold mb-6 text-slate-900 tracking-tight">{t.contact.title}</h1>
           <p className="text-xl text-slate-600 max-w-2xl mx-auto">
@@ -49,25 +54,12 @@ export default function ContactClient() {
                   <h3 className="font-bold text-slate-900 mb-1">{t.contact.socialCommunity}</h3>
                   <p className="text-slate-500 text-sm mb-2">{t.contact.socialDesc}</p>
                   <div className="flex gap-4">
-                    <a href="#" className="text-slate-600 hover:text-indigo-600 font-medium transition-colors">Twitter</a>
-                    <a href="#" className="text-slate-600 hover:text-indigo-600 font-medium transition-colors">LinkedIn</a>
-                    <a href="#" className="text-slate-600 hover:text-indigo-600 font-medium transition-colors">GitHub</a>
+                    <a href="https://github.com/eymanM/bible-assistant-ui" target="_blank" rel="noopener noreferrer" className="text-slate-600 hover:text-indigo-600 font-medium transition-colors">GitHub</a>
                   </div>
                 </div>
               </div>
 
-               <div className="flex items-start gap-4">
-                <div className="p-3 bg-indigo-50 rounded-xl text-indigo-600">
-                  <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"/><circle cx="12" cy="10" r="3"/></svg>
-                </div>
-                <div>
-                  <h3 className="font-bold text-slate-900 mb-1">{t.contact.office}</h3>
-                  <p className="text-slate-600 leading-relaxed text-sm">
-                    Bible Assistant HQ<br/>
-                    Remote / Online
-                  </p>
-                </div>
-              </div>
+
             </div>
           </div>
 

@@ -10,11 +10,16 @@ export default function PrivacyClient() {
   return (
     <main className="min-h-screen bg-white">
       <div className="container mx-auto px-4 py-12 max-w-4xl">
+        <div className="mb-6">
+          <Link href="/" className="text-slate-500 hover:text-indigo-600 flex items-center gap-2 text-sm font-medium transition-colors">
+            {t.account.backToHome}
+          </Link>
+        </div>
         <h1 className="text-3xl md:text-4xl font-bold mb-8 text-slate-900 tracking-tight">{t.privacy.title}</h1>
         
         <div className="prose prose-slate max-w-none text-slate-600">
           <p className="mb-6 bg-slate-50 p-4 rounded-lg border border-slate-100 text-sm">
-            <strong>Last Updated:</strong> {new Date().toLocaleDateString()}
+            <strong>{t.privacy.lastUpdated}</strong> 28.02.2026
           </p>
           
           <section className="mb-10">
