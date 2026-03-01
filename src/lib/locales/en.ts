@@ -104,27 +104,28 @@ export const en: Translation = {
     office: 'Headquarters',
     faqTitle: 'FAQ',
     faq: {
-       free: { question: 'Is it free?', answer: 'The core experience is free for all users.' },
-       versions: { question: 'Available Translations?', answer: 'Access a wide range of standard Bible translations.' }
+       free: { question: 'Is it free?', answer: 'Only Bible search is free, while AI generation and article search are not.' },
+       versions: { question: 'Available Translations?', answer: 'We only have one English translation: King James Version.' }
     }
   },
   privacy: {
     title: 'Privacy Policy',
     subtitle: 'Protecting your data and privacy.',
+    lastUpdated: 'Last Updated: ',
     introTitle: '1. Introduction',
-    introText: 'We respect your privacy and are committed to protecting your personal data. This policy informs you how we look after your data.',
+    introText: 'We respect your privacy and are committed to protecting your personal data. This policy informs you how we look after your data, in accordance with applicable data protection laws.',
     dataCollectTitle: '2. Data We Collect',
-    dataCollectText: 'We may collect Identity Data (name), Contact Data (email), and Usage Data (how you use our tools).',
+    dataCollectText: 'We collect Identity Data (name), Contact Data (email), and Usage Data (how you interact with our services). We do not collect sensitive personal data.',
     dataUseTitle: '3. How We Use Data',
     dataUseList: [
-        'To Provide the Service',
-        'To Improve Our Service',
-        'To Communicate with You'
+        'To operate, maintain, and provide the features of our service',
+        'To understand and analyze usage trends',
+        'To communicate with you for customer support'
     ],
-    securityTitle: '4. Data Security',
-    securityText: 'We have put in place appropriate security measures to prevent your personal data from being accidentally lost or used in an unauthorized way.',
-    contactTitle: '5. Contact Us',
-    contactText: 'If you have questions about this policy, please contact us.'
+    securityTitle: '4. Data Security & Retention',
+    securityText: 'We have implemented appropriate security measures to prevent your personal data from being accidentally lost or used in an unauthorized way. We retain data only as long as necessary.',
+    contactTitle: '5. Your Rights & Contact Information',
+    contactText: 'Under certain circumstances, you have rights under data protection laws regarding your personal data. If you have questions about this policy, please contact us:'
   },
   history: {
     title: 'Search History',

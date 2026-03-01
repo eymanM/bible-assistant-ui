@@ -104,27 +104,28 @@ export const pl: Translation = {
     office: 'Siedziba',
     faqTitle: 'FAQ',
     faq: {
-       free: { question: 'Czy to darmowe?', answer: 'Podstawowe funkcje są dostępne za darmo.' },
-       versions: { question: 'Dostępne Tłumaczenia?', answer: 'Obsługujemy szereg standardowych przekładów biblijnych.' }
+       free: { question: 'Czy to darmowe?', answer: 'Tylko wyszukiwanie Biblii jest darmowe, a generowanie AI i szukanie artykułów nie.' },
+       versions: { question: 'Dostępne Tłumaczenia?', answer: 'Mamy tylko jedno polskie tłumaczenie: Uwspółcześniona Biblia Gdańska.' }
     }
   },
-   privacy: {
+  privacy: {
     title: 'Polityka Prywatności',
     subtitle: 'Dbamy o Twoją prywatność i dane.',
+    lastUpdated: 'Ostatnia aktualizacja: ',
     introTitle: '1. Wstęp',
-    introText: 'Szanujemy Twoją prywatność i zobowiązujemy się do ochrony Twoich danych osobowych.',
+    introText: 'Szanujemy Twoją prywatność i zobowiązujemy się do ochrony Twoich danych osobowych. Niniejsza polityka określa zasady przetwarzania danych osobowych, zgodnie z obowiązującymi przepisami prawnymi (np. RODO).',
     dataCollectTitle: '2. Dane, które zbieramy',
-    dataCollectText: 'Możemy zbierać Dane Tożsamości, Dane Kontaktowe oraz Dane o Użyciu.',
+    dataCollectText: 'Możemy zbierać Dane Tożsamości (imię), Dane Kontaktowe (e-mail) oraz Dane o Użyciu (jak użytkownicy logują się na stronę i jak używają asystenta).',
     dataUseTitle: '3. Jak wykorzystujemy Twoje dane',
     dataUseList: [
-        'Aby świadczyć usługę',
-        'Aby ulepszać naszą usługę',
-        'Aby komunikować się z Tobą'
+        'Aby logować użytkowników i zachować ich preferencje',
+        'Aby dostarczać funkcje aplikacji takie jak historia AI',
+        'Aby odpowiadać na pytania i rozwiązywać problemy'
     ],
-    securityTitle: '4. Bezpieczeństwo Danych',
-    securityText: 'Wdrożyliśmy odpowiednie środki bezpieczeństwa, aby zapobiec przypadkowej utracie danych.',
-    contactTitle: '5. Skontaktuj się z nami',
-    contactText: 'Jeśli masz pytania dotyczące tej polityki, skontaktuj się z nami.'
+    securityTitle: '4. Bezpieczeństwo i Przechowywanie Danych',
+    securityText: 'Zapewniamy odpowiednie środki technologiczne mające na celu ochronę powierzonych danych przed dostępem nieupoważnionych stron trzecich. Dane przechowujemy tak długo jak jest to potrzebne.',
+    contactTitle: '5. Twoje Prawa i Kontakt',
+    contactText: 'Użytkownicy mają prawo do zarządzania, korekty lub usuwania swoich danych. W razie pytań skontaktuj się pod adresem strony:'
   },
   history: {
     title: 'Historia Wyszukiwań',
