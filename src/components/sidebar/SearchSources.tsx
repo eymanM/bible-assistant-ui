@@ -38,38 +38,53 @@ const SearchSources: React.FC<SearchSourcesProps> = ({ settings, setSettings }) 
           const Icon = item.icon;
           const isActive = settings[item.key as keyof SearchSettings];
           const isPremium = item.key === 'insights';
+          const isDisabled = item.key === 'media';
 
           return (
             <button
               key={item.key}
-              onClick={() => handleToggle(item.key as keyof SearchSettings)}
+              onClick={() => {
+                if (!isDisabled) {
+                  handleToggle(item.key as keyof SearchSettings);
+                }
+              }}
+              disabled={isDisabled}
               className={`w-full flex items-center justify-between p-3 rounded-xl transition-all duration-200 group ${
-                isActive 
-                  ? 'bg-indigo-50 text-indigo-700 border border-indigo-100' 
-                  : 'hover:bg-slate-50 text-slate-600 hover:text-slate-900 border border-transparent'
+                isDisabled
+                  ? 'bg-slate-50 text-slate-400 cursor-not-allowed border border-transparent'
+                  : isActive 
+                    ? 'bg-indigo-50 text-indigo-700 border border-indigo-100' 
+                    : 'hover:bg-slate-50 text-slate-600 hover:text-slate-900 border border-transparent'
               }`}
               aria-label={`Toggle ${item.label}`}
               aria-pressed={isActive}
               title={item.label}
             >
               <div className="flex items-center gap-3">
-                <Icon className={`w-5 h-5 ${isActive ? 'text-indigo-600' : 'text-slate-400 group-hover:text-slate-600'}`} />
+                <Icon className={`w-5 h-5 ${isDisabled ? 'text-slate-300' : isActive ? 'text-indigo-600' : 'text-slate-400 group-hover:text-slate-600'}`} />
                 <div className="flex items-center gap-2">
-                  <span className="font-medium text-sm">{item.label}</span>
+                  <span className={`font-medium text-sm ${isDisabled ? 'text-slate-400' : ''}`}>{item.label}</span>
                   {isPremium && (
                     <span className="text-[10px] font-bold bg-gradient-to-r from-violet-500 to-fuchsia-500 text-white px-1.5 py-0.5 rounded shadow-sm">
                       PREMIUM
+                    </span>
+                  )}
+                  {isDisabled && (
+                    <span className="text-[10px] font-bold bg-gradient-to-r from-amber-400 to-orange-500 text-white px-1.5 py-0.5 rounded shadow-sm">
+                      WKRÓTCE
                     </span>
                   )}
                 </div>
               </div>
               
               <div className={`w-5 h-5 ml-2 flex-shrink-0 rounded-md border flex items-center justify-center transition-all ${
-                isActive 
-                  ? 'bg-indigo-600 border-indigo-600 shadow-sm' 
-                  : 'border-slate-200 bg-white group-hover:border-slate-300'
+                isDisabled
+                  ? 'border-slate-200 bg-slate-100'
+                  : isActive 
+                    ? 'bg-indigo-600 border-indigo-600 shadow-sm' 
+                    : 'border-slate-200 bg-white group-hover:border-slate-300'
               }`}>
-                {isActive && <Check className="w-3.5 h-3.5 text-white" />}
+                {isActive && !isDisabled && <Check className="w-3.5 h-3.5 text-white" />}
               </div>
             </button>
           );
