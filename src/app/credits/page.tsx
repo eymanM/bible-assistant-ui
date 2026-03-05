@@ -20,6 +20,7 @@ function CreditsContent() {
 
   const [loading, setLoading] = useState(false);
   const [currency, setCurrency] = useState<Currency>('USD');
+  const [errorMsg, setErrorMsg] = useState<string | null>(null);
 
   useEffect(() => {
     // Optional: Auto-detect currency or persist selection
@@ -44,12 +45,13 @@ function CreditsContent() {
 
   async function handleBuy(priceId: string, credits: number) {
     if (!user) {
-      alert(t.credits.loginRequired);
-      router.push('/login');
+      setErrorMsg(t.credits.loginRequired);
+      setTimeout(() => router.push('/login'), 2000);
       return;
     }
 
     setLoading(true);
+    setErrorMsg(null);
 
     try {
       const response = await fetch('/api/checkout', {
@@ -76,8 +78,14 @@ function CreditsContent() {
       if (url) {
         window.location.href = url;
       } else if (sessionId) {
-        // Placeholder Stripe logic
-        alert('Stripe client redirect not implemented fully without key');
+        // Dynamically import stripe to keep initial bundle size small
+        const { loadStripe } = await import('@stripe/stripe-js');
+        const stripe = await loadStripe(process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY || '');
+        if (stripe) {
+            await (stripe as any).redirectToCheckout({ sessionId });
+        } else {
+            throw new Error('Failed to load Stripe SDK. Check NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY.');
+        }
       }
       else {
         console.error('Missing checkout URL or Session ID');
@@ -85,7 +93,7 @@ function CreditsContent() {
       }
     } catch (err: any) {
       console.error(err);
-      alert(`${t.credits.paymentFailed}: ${err.message}`);
+      setErrorMsg(`${t.credits.paymentFailed}: ${err.message}`);
     } finally {
       setLoading(false);
     }
@@ -164,6 +172,12 @@ function CreditsContent() {
       {canceled && (
         <div className="bg-yellow-100 border border-yellow-400 text-yellow-700 px-4 py-3 rounded mb-6">
           <p>{t.credits.paymentCanceled}</p>
+        </div>
+      )}
+
+      {errorMsg && (
+        <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-6 animate-pulse">
+          <p>{errorMsg}</p>
         </div>
       )}
 
