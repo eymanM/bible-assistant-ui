@@ -1,0 +1,9 @@
+ M src/app/about/AboutClient.tsx
+ M src/app/contact/ContactClient.tsx
+ M src/components/SearchBar.tsx
+ M src/components/Sidebar.tsx
+ M src/hooks/useBibleSearch.ts
+?? src/app/admin/
+?? src/app/api/admin/
+?? src/app/search/
+?? status.txt

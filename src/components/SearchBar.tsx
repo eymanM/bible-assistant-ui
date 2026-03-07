@@ -49,7 +49,7 @@ const SearchBar: React.FC<SearchBarProps> = ({ onSearch, disabled, isLoading, sh
         <input
           aria-label={t.main.searchPlaceholder}
           aria-describedby={helperId}
-          type="search"
+          type="text"
           value={query}
           onChange={(e) => {
             const val = e.target.value;

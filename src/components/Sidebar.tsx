@@ -1,7 +1,7 @@
 'use client';
 
 import React from 'react';
-import { History, X } from 'lucide-react';
+import { History, X, ShieldAlert } from 'lucide-react';
 import Image from 'next/image';
 import dynamic from 'next/dynamic';
 import Link from 'next/link';
@@ -46,6 +46,10 @@ const Sidebar: React.FC<SidebarProps> = ({ settings, setSettings, onHistoryClick
   const { t } = useLanguage();
   const [isAboutOpen, setIsAboutOpen] = React.useState(false);
   const [isHistoryOpen, setIsHistoryOpen] = React.useState(false);
+
+  // Safe check if current user is admin
+  const isAdmin = user?.signInDetails?.loginId && 
+                  process.env.NEXT_PUBLIC_ADMIN_EMAILS?.split(',').map((e: string) => e.trim().toLowerCase()).includes(user.signInDetails.loginId.toLowerCase());
 
   return (
     <>
@@ -92,6 +96,16 @@ const Sidebar: React.FC<SidebarProps> = ({ settings, setSettings, onHistoryClick
               <History className="w-5 h-5 text-slate-400 group-hover:text-indigo-500 transition-colors" />
               <span>{t.sidebar.recentSearches}</span>
             </button>
+            
+            {isAdmin && (
+              <Link
+                href="/admin"
+                className="w-full mt-3 flex items-center gap-3 p-3 text-sm font-medium text-amber-700 bg-amber-50 border border-amber-200 rounded-xl hover:border-amber-400 hover:text-amber-800 transition-all shadow-sm group"
+              >
+                <ShieldAlert className="w-5 h-5 text-amber-500 group-hover:text-amber-600 transition-colors" />
+                <span>Admin Dashboard</span>
+              </Link>
+            )}
           </div>
 
         </div>

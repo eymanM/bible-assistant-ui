@@ -1,4 +1,4 @@
-import { useState, useCallback, useRef, useEffect } from 'react';
+import { useState, useCallback, useRef, useEffect, startTransition } from 'react';
 
 import { useAuth } from '../lib/auth-context';
 import { useLanguage } from '../lib/language-context';
@@ -34,6 +34,15 @@ export const useBibleSearch = () => {
   const [error, setError] = useState<string | null>(null);
   const llmBufferRef = useRef('');
   const flushTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const abortControllerRef = useRef<AbortController | null>(null);
+
+  useEffect(() => {
+    return () => {
+      if (abortControllerRef.current) {
+        abortControllerRef.current.abort();
+      }
+    };
+  }, []);
 
   const getTranslatedError = useCallback((msg: string) => {
     if (!msg) return t.apiErrors.internalError;
@@ -115,7 +124,13 @@ export const useBibleSearch = () => {
   }, [settings, user, dbUser]);
 
   const search = useCallback(async (searchQuery: string) => {
-    if (loadingRef.current) return;
+    // If a search is already in flight, abort it so the new one can take over
+    if (loadingRef.current && abortControllerRef.current) {
+      abortControllerRef.current.abort();
+      loadingRef.current = false;
+    }
+    abortControllerRef.current = new AbortController();
+
     setQuery(searchQuery);
     setLoading(true);
     loadingRef.current = true;
@@ -155,6 +170,7 @@ export const useBibleSearch = () => {
       const response = await fetch('/api/search', {
         method: 'POST',
         headers,
+        signal: abortControllerRef.current?.signal,
         body: JSON.stringify({ 
           query: searchQuery,
           settings: {
@@ -258,10 +274,12 @@ export const useBibleSearch = () => {
                       if (llmBufferRef.current) {
                         const chunk = llmBufferRef.current;
                         llmBufferRef.current = '';
-                        setResults(prev => ({
-                          ...prev,
-                          llmResponse: prev.llmResponse + chunk
-                        }));
+                        startTransition(() => {
+                          setResults(prev => ({
+                            ...prev,
+                            llmResponse: prev.llmResponse + chunk
+                          }));
+                        });
                       }
                       flushTimerRef.current = null;
                     }, 33);
@@ -320,10 +338,12 @@ export const useBibleSearch = () => {
       if (llmBufferRef.current) {
         const chunk = llmBufferRef.current;
         llmBufferRef.current = '';
-        setResults(prev => ({
-          ...prev,
-          llmResponse: prev.llmResponse + chunk
-        }));
+        startTransition(() => {
+          setResults(prev => ({
+            ...prev,
+            llmResponse: prev.llmResponse + chunk
+          }));
+        });
       }
 
 
@@ -388,7 +408,11 @@ export const useBibleSearch = () => {
 
       // Execute both side effects in parallel
       await Promise.allSettled([historyTask(), creditsTask()]);
-    } catch (err) {
+    } catch (err: any) {
+      if (err.name === 'AbortError') {
+        console.log('Search aborted');
+        return;
+      }
       setTranslatedError(err instanceof Error ? err.message : 'An error occurred');
       console.error('Search error:', err);
     } finally {

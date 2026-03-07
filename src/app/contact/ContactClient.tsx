@@ -9,32 +9,32 @@ export default function ContactClient() {
 
   return (
     <main className="min-h-screen bg-slate-50">
-      <div className="container mx-auto px-4 py-16 max-w-5xl">
-        <div className="mb-8">
+      <div className="container mx-auto px-4 py-8 md:py-16 max-w-5xl">
+        <div className="mb-6 md:mb-8">
           <Link href="/" className="text-slate-500 hover:text-indigo-600 flex items-center gap-2 text-sm font-medium transition-colors">
             {t.account.backToHome}
           </Link>
         </div>
-        <div className="text-center mb-16">
-          <h1 className="text-4xl md:text-5xl font-extrabold mb-6 text-slate-900 tracking-tight">{t.contact.title}</h1>
-          <p className="text-xl text-slate-600 max-w-2xl mx-auto">
+        <div className="text-center mb-10 md:mb-16">
+          <h1 className="text-3xl sm:text-4xl md:text-5xl font-extrabold mb-4 md:mb-6 text-slate-900 tracking-tight">{t.contact.title}</h1>
+          <p className="text-lg md:text-xl text-slate-600 max-w-2xl mx-auto px-2">
             {t.contact.subtitle}
           </p>
         </div>
         
-        <div className="grid md:grid-cols-2 gap-12 items-start">
+        <div className="grid md:grid-cols-2 gap-8 md:gap-12 items-start">
           {/* Left Column: Contact Info & Context */}
-          <div className="bg-white p-8 md:p-10 rounded-3xl shadow-sm border border-slate-100">
-             <h2 className="text-2xl font-bold text-slate-900 mb-6">{t.contact.feedbackTitle}</h2>
-             <div className="prose prose-slate text-slate-600 mb-8">
+          <div className="bg-white p-6 md:p-10 rounded-3xl shadow-sm border border-slate-100">
+             <h2 className="text-xl md:text-2xl font-bold text-slate-900 mb-4 md:mb-6">{t.contact.feedbackTitle}</h2>
+             <div className="prose prose-slate text-sm md:text-base text-slate-600 mb-8">
                <p>
                  {t.contact.feedbackText}
                </p>
              </div>
 
              <div className="space-y-8">
-              <div className="flex items-start gap-4">
-                <div className="p-3 bg-indigo-50 rounded-xl text-indigo-600">
+              <div className="flex flex-col sm:flex-row items-start gap-4">
+                <div className="p-3 bg-indigo-50 rounded-xl text-indigo-600 shrink-0">
                   <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect width="20" height="16" x="2" y="4" rx="2"/><path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"/></svg>
                 </div>
                 <div>
@@ -46,8 +46,8 @@ export default function ContactClient() {
                 </div>
               </div>
 
-              <div className="flex items-start gap-4">
-                <div className="p-3 bg-indigo-50 rounded-xl text-indigo-600">
+              <div className="flex flex-col sm:flex-row items-start gap-4">
+                <div className="p-3 bg-indigo-50 rounded-xl text-indigo-600 shrink-0">
                   <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M16 8a6 6 0 0 1 6 6v7h-4v-7a2 2 0 0 0-2-2 2 2 0 0 0-2 2v7h-4v-7a6 6 0 0 1 6-6z"/><rect width="4" height="12" x="2" y="9"/><circle cx="4" cy="4" r="2"/></svg>
                 </div>
                 <div>
