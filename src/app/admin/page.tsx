@@ -4,6 +4,7 @@ import React, { useEffect, useState } from 'react';
 import { useAuth } from '@/lib/auth-context';
 import { useRouter } from 'next/navigation';
 import { Users, Search, DollarSign, Activity, AlertTriangle } from 'lucide-react';
+import { getAuthHeaders } from '@/lib/auth-helpers';
 
 interface Metrics {
   totalUsers: number;
@@ -42,9 +43,10 @@ export default function AdminDashboard() {
     const fetchAdminData = async () => {
       try {
         setLoading(true);
+        const headers = await getAuthHeaders();
         const [metricsRes, flaggedRes] = await Promise.all([
-          fetch('/api/admin/metrics'),
-          fetch('/api/admin/flagged')
+          fetch('/api/admin/metrics', { headers }),
+          fetch('/api/admin/flagged', { headers })
         ]);
 
         if (!metricsRes.ok || !flaggedRes.ok) {
