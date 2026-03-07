@@ -1,7 +1,7 @@
 {
   "name": "bible-assistant-next",
   "private": true,
-  "version": "1.0.10",
+  "version": "1.0.12",
   "engines": {
     "node": ">=22.11.0"
   },
