@@ -12,7 +12,7 @@ export async function isAdmin(req: NextRequest) {
     
     if (!user || !user.email) return false;
     
-    const adminEmailsRaw = process.env.ADMIN_EMAILS || '';
+    const adminEmailsRaw = process.env.NEXT_PUBLIC_ADMIN_EMAILS || '';
     const adminEmails = adminEmailsRaw.split(',').map(e => e.trim().toLowerCase());
     
     return adminEmails.includes(user.email.toLowerCase());
