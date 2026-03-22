@@ -2,7 +2,7 @@ import { Translation } from '../types';
 
 export const pl: Translation = {
   sidebar: {
-    title: 'Asystent Biblijny',
+    title: 'Scripture Assistant',
     subtitle: 'Zaawansowane Narzędzie',
     languageSettings: 'Ustawienia Języka',
     searchSources: 'Źródła Wyszukiwania',

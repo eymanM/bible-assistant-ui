@@ -2,7 +2,7 @@ import { Translation } from '../types';
 
 export const en: Translation = {
   sidebar: {
-    title: 'Bible Assistant',
+    title: 'Scripture Assistant',
     subtitle: 'Advanced Study Tool',
     languageSettings: 'Language Settings',
     searchSources: 'Search Sources',
@@ -74,7 +74,7 @@ export const en: Translation = {
     noTransactions: 'No transactions found'
   },
   about: {
-    title: 'About Bible Assistant',
+    title: 'About Scripture Assistant',
     subtitle: 'History & Mission of Bible AI',
     missionTitle: 'Bible-Centric Services',
     missionText: 'Our goal is to make Scripture accessible and understandable for everyone. We provide tools that help you engage deeply with the Bible, supporting your spiritual growth with modern technology.',

@@ -41,7 +41,7 @@ describe('Sidebar Component', () => {
 
   it('renders correctly', () => {
     render(<Sidebar {...mockProps} />);
-    expect(screen.getByText('Bible Assistant')).toBeInTheDocument();
+    expect(screen.getByText('Scripture Assistant')).toBeInTheDocument();
     expect(screen.getByText('Old Testament')).toBeInTheDocument();
   });
 
