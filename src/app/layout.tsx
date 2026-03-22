@@ -17,8 +17,8 @@ const inter = Inter({
 export const metadata: Metadata = {
   metadataBase: new URL(process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000'),
   title: {
-    default: 'Bible Assistant - AI-Powered Bible Study & Research Tool',
-    template: '%s | Bible Assistant',
+    default: 'Scripture Assistant - AI-Powered Bible Study & Research Tool',
+    template: '%s | Scripture Assistant',
   },
   description: 'A modern AI-powered Bible study assistant. Explore scripture, commentaries, and theological insights with advanced artificial intelligence.',
   manifest: '/manifest.json',
@@ -38,27 +38,27 @@ export const metadata: Metadata = {
   appleWebApp: {
     capable: true,
     statusBarStyle: 'default',
-    title: 'Bible Assistant',
+    title: 'Scripture Assistant',
   },
   openGraph: {
     type: 'website',
     locale: 'en_US',
     url: '/',
-    title: 'Bible Assistant - AI-Powered Bible Study & Research Tool',
+    title: 'Scripture Assistant - AI-Powered Bible Study & Research Tool',
     description: 'A modern AI-powered Bible study assistant. Explore scripture, commentaries, and theological insights.',
-    siteName: 'Bible Assistant',
+    siteName: 'Scripture Assistant',
     images: [
       {
         url: '/icons/icon-512x512.png',
         width: 512,
         height: 512,
-        alt: 'Bible Assistant Logo',
+        alt: 'Scripture Assistant Logo',
       },
     ],
   },
   twitter: {
     card: 'summary',
-    title: 'Bible Assistant - AI-Powered Bible Study',
+    title: 'Scripture Assistant - AI-Powered Bible Study',
     description: 'Explore scripture and theology with AI assistance.',
     images: ['/icons/icon-512x512.png'],
   },
@@ -81,7 +81,7 @@ export default function RootLayout({
   const jsonLd = {
     '@context': 'https://schema.org',
     '@type': 'WebApplication',
-    name: 'Bible Assistant',
+    name: 'Scripture Assistant',
     description: 'AI-powered Bible study assistant for exploring scripture, commentaries, and theological insights',
     url: process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000',
     applicationCategory: 'EducationalApplication',

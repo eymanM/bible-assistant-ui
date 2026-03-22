@@ -50,7 +50,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   
   if (!data) {
     return {
-      title: 'Search Not Found | Bible Assistant'
+      title: 'Search Not Found | Scripture Assistant'
     };
   }
 
@@ -60,7 +60,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     : `Explore what the Bible says about ${data.query}`;
 
   return {
-    title: `${data.query} - Bible Study Insights | Bible Assistant`,
+    title: `${data.query} - Bible Study Insights | Scripture Assistant`,
     description
   };
 }

@@ -24,11 +24,11 @@ export default function LoginPage() {
     I18n.putVocabularies({
       en: {
         'Sign in to continue': 'Sign in to continue',
-        'Bible Assistant': 'Bible Assistant'
+        'Scripture Assistant': 'Scripture Assistant'
       },
       pl: {
         'Sign in to continue': 'Zaloguj się, aby kontynuować',
-        'Bible Assistant': 'Asystent Biblijny',
+        'Scripture Assistant': 'Scripture Assistant',
         'Sign In': 'Zaloguj się',
         'Sign Up': 'Zarejestruj się',
         'Create Account': 'Utwórz konto',
@@ -68,7 +68,7 @@ export default function LoginPage() {
         components={{
           Header: () => (
             <div className="text-center mb-6">
-              <h1 className="text-2xl font-bold">{I18n.get('Bible Assistant')}</h1>
+              <h1 className="text-2xl font-bold">{I18n.get('Scripture Assistant')}</h1>
               <p className="text-gray-500">{I18n.get('Sign in to continue')}</p>
             </div>
           )
