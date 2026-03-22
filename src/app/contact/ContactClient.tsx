@@ -40,8 +40,8 @@ export default function ContactClient() {
                 <div>
                   <h3 className="font-bold text-slate-900 mb-1">{t.contact.emailSupport}</h3>
                   <p className="text-slate-500 text-sm mb-2">{t.contact.emailDesc}</p>
-                  <a href="mailto:support@bibleassistant.example.com" className="text-indigo-600 font-semibold hover:underline">
-                    support@bibleassistant.example.com
+                  <a href="mailto:support@scriptureassistant.com" className="text-indigo-600 font-semibold hover:underline">
+                    support@scriptureassistant.com
                   </a>
                 </div>
               </div>

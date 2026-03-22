@@ -1,6 +1,6 @@
-# Bible Assistant - AI-Powered Bible Study Tool 📖✨
+# Scripture Assistant - AI-Powered Bible Study Tool 📖✨
 
-Bible Assistant is a modern, full-stack web application designed to revolutionize Bible study through the power of Artificial Intelligence. It provides users with semantic search capabilities, deep theological insights, and tailored commentaries, all wrapped in a premium, responsive user interface.
+Scripture Assistant is a modern, full-stack web application designed to revolutionize Bible study through the power of Artificial Intelligence. It provides users with semantic search capabilities, deep theological insights, and tailored commentaries, all wrapped in a premium, responsive user interface.
 
 ## 🚀 Key Features
 
@@ -75,7 +75,7 @@ Follow these instructions to set up the project locally.
    ```
 
 5. **Start the Backend API**
-   This frontend requires the **Bible Assistant API** to be running.
+   This frontend requires the **Scripture Assistant API** to be running.
    
    Clone the backend repository and start the server:
    

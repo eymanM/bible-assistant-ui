@@ -7,7 +7,7 @@ export default async function manifest(): Promise<MetadataRoute.Manifest> {
   const isPolish = acceptLanguage.includes('pl');
 
   return {
-    name: isPolish ? 'Asystent Biblijny' : 'Bible Assistant',
+    name: 'Scripture Assistant',
     short_name: isPolish ? 'Biblia AI' : 'Bible AI',
     description: isPolish 
       ? 'Nowoczesny asystent biblijny wspierany przez AI' 

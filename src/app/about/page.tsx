@@ -3,7 +3,7 @@ import { Metadata } from 'next';
 import AboutClient from './AboutClient';
 
 export const metadata: Metadata = {
-  title: 'About Bible Assistant | AI Scripture Tool',
+  title: 'About Scripture Assistant | AI Scripture Tool',
   description: 'Bridges ancient scripture with modern understanding. AI-powered theological insights accessible to everyone.',
 };
 
