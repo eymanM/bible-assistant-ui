@@ -1,3 +1,5 @@
+"use client";
+
 import React, { useState, useEffect } from 'react';
 import { BookOpen, Video, FileText, ExternalLink, Loader2, AlertCircle } from 'lucide-react';
 import { searchMedia, MediaItem } from '@/lib/media-service';

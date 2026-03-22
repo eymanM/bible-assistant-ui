@@ -1,3 +1,5 @@
+"use client";
+
 import React, { useCallback, useMemo } from 'react';
 import { Book, MessageCircle, Sparkles, BookOpen, ThumbsUp, ThumbsDown } from 'lucide-react';
 import SearchResultItem from './SearchResultItem';
