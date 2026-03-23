@@ -21,6 +21,15 @@ export const metadata: Metadata = {
     template: '%s | Scripture Assistant',
   },
   description: 'A modern AI-powered Bible study assistant. Explore scripture, commentaries, and theological insights with advanced artificial intelligence.',
+  keywords: ['Bible study', 'AI Bible', 'scripture assistant', 'theological research', 'bible commentary', 'studium Biblii', 'asystent biblijny', 'AI', 'theology', 'teologia'],
+  authors: [{ name: 'Scripture Assistant' }],
+  creator: 'Scripture Assistant',
+  publisher: 'Scripture Assistant',
+  formatDetection: {
+    email: false,
+    address: false,
+    telephone: false,
+  },
   manifest: '/manifest.json',
   icons: {
     icon: [
@@ -43,6 +52,7 @@ export const metadata: Metadata = {
   openGraph: {
     type: 'website',
     locale: 'en_US',
+    alternateLocale: ['pl_PL'],
     url: '/',
     title: 'Scripture Assistant - AI-Powered Bible Study & Research Tool',
     description: 'A modern AI-powered Bible study assistant. Explore scripture, commentaries, and theological insights.',
@@ -57,13 +67,17 @@ export const metadata: Metadata = {
     ],
   },
   twitter: {
-    card: 'summary',
+    card: 'summary_large_image',
     title: 'Scripture Assistant - AI-Powered Bible Study',
     description: 'Explore scripture and theology with AI assistance.',
     images: ['/icons/icon-512x512.png'],
   },
   alternates: {
     canonical: '/',
+    languages: {
+      'en-US': '/en',
+      'pl-PL': '/pl',
+    },
   },
 };
 
