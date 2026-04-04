@@ -25,51 +25,17 @@ export async function POST(req: NextRequest) {
   if (event.type === 'checkout.session.completed') {
     const session = event.data.object as Stripe.Checkout.Session;
     
-    const userId = session.metadata?.userId;
-    const creditsAmount = parseInt(session.metadata?.creditsAmount || '0', 10);
-
-    if (userId && creditsAmount > 0) {
-        // Ensure user exists (sync with DB)
-        // We use customer_email from session if available fallback to one passed in metadata if we stored it
-        // Check session.customer_details?.email as well.
-        const userEmail = session.customer_details?.email || session.customer_email || 'unknown@example.com';
-        
-        console.log(`Processing purchase for user ${userId} (${userEmail})`);
-        
-        // 1. Get or Create User
-        // This ensures the UPDATE in addCredits has a row to update.
-        const user = await getOrCreateUser(userId, userEmail);
-
-        // 2. Add Credits
-        console.log(`Adding ${creditsAmount} credits to user ${userId}`);
-        await addCredits(userId, creditsAmount);
-
-        // Record or Update transaction
-        try {
-          const amountTotal = session.amount_total ? session.amount_total / 100 : 0;
-          const currency = session.currency?.toUpperCase() || 'USD';
-          
-          // Try to update existing 'pending' transaction first
-          const updated = await updateTransactionStatus(session.id, 'succeeded');
-          
-          if (!updated) {
-               // Fallback: Create new if not found (e.g. created before we started tracking pending)
-               await createTransaction(
-                 user.id, 
-                 amountTotal,
-                 currency,
-                 creditsAmount,
-                 session.id,
-                 'succeeded'
-               );
-               console.log(`Transaction created (fallback) for user ${userId}`);
-          } else {
-             console.log(`Transaction status updated to succeeded for user ${userId}`);
-          }
-        } catch (error) {
-           console.error('Failed to record transaction:', error);
-        }
+    // For synchronous payments (cards) or instant (BLIK), payment_status is 'paid' here.
+    // For delayed async payments (P24), it might be 'unpaid' here.
+    if (session.payment_status === 'paid') {
+      await handleSuccessfulPayment(session);
+    } else {
+      console.log(`Session ${session.id} completed, but payment_status is ${session.payment_status} (waiting for async_payment_succeeded)`);
     }
+  } else if (event.type === 'checkout.session.async_payment_succeeded') {
+    const session = event.data.object as Stripe.Checkout.Session;
+    console.log(`Async payment succeeded for session: ${session.id}`);
+    await handleSuccessfulPayment(session);
   } else if (event.type === 'checkout.session.expired') {
     const session = event.data.object as Stripe.Checkout.Session;
     console.log(`Checkout session expired: ${session.id}`);
@@ -82,3 +48,46 @@ export async function POST(req: NextRequest) {
 
   return NextResponse.json({ received: true });
 }
+
+// Reusable function to handle credit assignment
+async function handleSuccessfulPayment(session: Stripe.Checkout.Session) {
+  const userId = session.metadata?.userId;
+  const creditsAmount = parseInt(session.metadata?.creditsAmount || '0', 10);
+
+  if (userId && creditsAmount > 0) {
+    const userEmail = session.customer_details?.email || session.customer_email || 'unknown@example.com';
+    console.log(`Processing successful payment for user ${userId} (${userEmail})`);
+    
+    // 1. Get or Create User
+    const user = await getOrCreateUser(userId, userEmail);
+
+    // 2. Add Credits
+    console.log(`Adding ${creditsAmount} credits to user ${userId}`);
+    await addCredits(userId, creditsAmount);
+
+    // 3. Record or Update transaction
+    try {
+      const amountTotal = session.amount_total ? session.amount_total / 100 : 0;
+      const currency = session.currency?.toUpperCase() || 'USD';
+      
+      const updated = await updateTransactionStatus(session.id, 'succeeded');
+      
+      if (!updated) {
+           await createTransaction(
+             user.id, 
+             amountTotal,
+             currency,
+             creditsAmount,
+             session.id,
+             'succeeded'
+           );
+           console.log(`Transaction created (fallback) for user ${userId}`);
+      } else {
+         console.log(`Transaction status updated to succeeded for user ${userId}`);
+      }
+    } catch (error) {
+       console.error('Failed to record transaction:', error);
+    }
+  }
+}
+
