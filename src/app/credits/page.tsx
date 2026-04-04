@@ -112,6 +112,7 @@ function CreditsContent() {
     const rateCents = getRateCents(amount);
     let finalRateCents = rateCents;
     if (curr === 'PLN') finalRateCents = rateCents * 4;
+    else if (curr === 'EUR') finalRateCents = rateCents * 0.93;
 
     const totalCents = Math.round(amount * finalRateCents);
     
@@ -125,6 +126,7 @@ function CreditsContent() {
     let rateCents = 14;
     let finalRateCents = rateCents;
     if (curr === 'PLN') finalRateCents = rateCents * 4;
+    else if (curr === 'EUR') finalRateCents = rateCents * 0.93;
     
     const totalCents = Math.round(amount * finalRateCents);
     
