@@ -33,6 +33,8 @@ export async function POST(req: NextRequest) {
     let finalRateCents = rateCents;
     if (currency === 'PLN') {
       finalRateCents = rateCents * 4; // 1 cent USD = 4 grosze PLN
+    } else if (currency === 'EUR') {
+      finalRateCents = rateCents * 0.93;
     }
 
     const totalAmountCents = credits * finalRateCents;
@@ -71,7 +73,6 @@ export async function POST(req: NextRequest) {
        const user = await getOrCreateUser(userId, email || 'unknown@example.com');
        
        const amountEstimate = totalAmountCents / 100;
-       const currency = 'USD';
 
        await createTransaction(
          user.id,
