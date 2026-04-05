@@ -34,6 +34,14 @@ export async function createTransaction(
   return res.rows[0];
 }
 
+export async function getTransactionBySessionId(stripeSessionId: string): Promise<Transaction | null> {
+  const res = await pool.query(
+    `SELECT * FROM bible_assistant.transactions WHERE stripe_session_id = $1`,
+    [stripeSessionId]
+  );
+  return res.rows[0] || null;
+}
+
 export async function updateTransactionStatus(
   stripeSessionId: string, 
   status: 'pending' | 'succeeded' | 'failed' | 'canceled'

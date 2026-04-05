@@ -26,10 +26,25 @@ function CreditsContent() {
   useEffect(() => {
     // Optional: Auto-detect currency or persist selection
     if (success) {
-      const timer = setTimeout(() => {
-        router.push('/');
-      }, 5000);
-      return () => clearTimeout(timer);
+      const checkAndRedirect = async () => {
+        const sessionId = searchParams.get('session_id');
+        if (sessionId) {
+          try {
+            await fetch('/api/checkout/verify', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ sessionId })
+            });
+          } catch (e) {
+            console.error('Verification failed', e);
+          }
+        }
+        setTimeout(() => {
+          router.push('/');
+        }, 5000);
+      };
+      
+      checkAndRedirect();
     }
 
     if (canceled) {

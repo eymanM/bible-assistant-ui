@@ -58,7 +58,7 @@ export async function POST(req: NextRequest) {
         },
       ],
       mode: 'payment',
-      success_url: `${baseUrl}/credits?success=true`,
+      success_url: `${baseUrl}/credits?success=true&session_id={CHECKOUT_SESSION_ID}`,
       cancel_url: `${baseUrl}/credits?canceled=true&session_id={CHECKOUT_SESSION_ID}`,
       customer_email: email,
       metadata: {
