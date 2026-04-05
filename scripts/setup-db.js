@@ -3,12 +3,34 @@ const { Pool } = require('pg');
 // Direct connection string from user request for this script only
 const connectionString = process.env.DATABASE_URL;
 
-const pool = new Pool({
+const config = {
   connectionString,
-  ssl: {
+};
+
+// Enable SSL if running in production (except for localhost), or if explicitly required
+if (
+  process.env.DB_REQUIRE_SSL === 'true' ||
+  (connectionString && connectionString.includes('sslmode=require')) ||
+  (process.env.NODE_ENV === 'production' &&
+    process.env.DB_REQUIRE_SSL !== 'false' &&
+    connectionString &&
+    !connectionString.includes('localhost') &&
+    !connectionString.includes('127.0.0.1'))
+) {
+  config.ssl = {
     rejectUnauthorized: false,
-  },
-});
+  };
+}
+
+// Explicitly remove SSL if disabled via env or connection string
+if (
+  process.env.DB_REQUIRE_SSL === 'false' ||
+  (connectionString && connectionString.includes('sslmode=disable'))
+) {
+  delete config.ssl;
+}
+
+const pool = new Pool(config);
 
 const createTableQuery = `
 CREATE SCHEMA IF NOT EXISTS bible_assistant;

@@ -1,4 +1,4 @@
-import { Pool } from 'pg';
+import { Pool, PoolConfig } from 'pg';
 
 const connectionString = process.env.DATABASE_URL;
 
@@ -8,9 +8,31 @@ if (!connectionString) {
   console.warn('DATABASE_URL is not defined');
 }
 
-export const pool = new Pool({
+const config: PoolConfig = {
   connectionString,
-  ssl: {
-    rejectUnauthorized: false
-  }
-});
+};
+
+// Enable SSL if running in production (except for localhost), or if explicitly required
+if (
+  process.env.DB_REQUIRE_SSL === 'true' ||
+  connectionString?.includes('sslmode=require') ||
+  (process.env.NODE_ENV === 'production' &&
+    process.env.DB_REQUIRE_SSL !== 'false' &&
+    connectionString &&
+    !connectionString.includes('localhost') &&
+    !connectionString.includes('127.0.0.1'))
+) {
+  config.ssl = {
+    rejectUnauthorized: false,
+  };
+}
+
+// Explicitly remove SSL if disabled via env or connection string
+if (
+  process.env.DB_REQUIRE_SSL === 'false' ||
+  connectionString?.includes('sslmode=disable')
+) {
+  delete config.ssl;
+}
+
+export const pool = new Pool(config);
