@@ -79,6 +79,9 @@ export const metadata: Metadata = {
       'pl-PL': '/pl',
     },
   },
+  other: {
+    google: 'notranslate',
+  },
 };
 
 export const viewport = {
@@ -107,7 +110,7 @@ export default function RootLayout({
   };
 
   return (
-    <html lang="en">
+    <html lang="en" translate="no">
       <body className={inter.className}>
         <script
           type="application/ld+json"

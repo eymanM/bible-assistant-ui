@@ -9,17 +9,18 @@ export const dynamic = 'force-dynamic';
 
 const stripePromise = null;
 
-type Currency = 'USD' | 'EUR' | 'PLN';
+type Currency = 'USD' | 'PLN';
 
 function CreditsContent() {
   const { user } = useAuth();
   const router = useRouter();
   const searchParams = useSearchParams();
+  const { t, language } = useLanguage();
   const success = searchParams.get('success');
   const canceled = searchParams.get('canceled');
 
   const [loading, setLoading] = useState(false);
-  const [currency, setCurrency] = useState<Currency>('USD');
+  const [currency, setCurrency] = useState<Currency>(language === 'pl' ? 'PLN' : 'USD');
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
   const [credits, setCredits] = useState<number>(100);
 
@@ -115,8 +116,6 @@ function CreditsContent() {
     }
   }
 
-  const { t } = useLanguage();
-
   function getRateCents(amount: number) {
     const cappedAmount = Math.min(500, Math.max(10, amount));
     const steps = Math.max(0, Math.floor((cappedAmount - 20) / 20));
@@ -127,12 +126,10 @@ function CreditsContent() {
     const rateCents = getRateCents(amount);
     let finalRateCents = rateCents;
     if (curr === 'PLN') finalRateCents = rateCents * 4;
-    else if (curr === 'EUR') finalRateCents = rateCents * 0.93;
 
     const totalCents = Math.round(amount * finalRateCents);
     
-    if (curr === 'USD') return `$${(totalCents / 100).toFixed(2)}`;
-    if (curr === 'EUR') return `€${(totalCents / 100).toFixed(2)}`;
+    if (curr === 'USD') return `${(totalCents / 100).toFixed(2)} USD`;
     if (curr === 'PLN') return `${(totalCents / 100).toFixed(2)} zł`;
     return '';
   }
@@ -141,12 +138,10 @@ function CreditsContent() {
     let rateCents = 14;
     let finalRateCents = rateCents;
     if (curr === 'PLN') finalRateCents = rateCents * 4;
-    else if (curr === 'EUR') finalRateCents = rateCents * 0.93;
     
     const totalCents = Math.round(amount * finalRateCents);
     
-    if (curr === 'USD') return `$${(totalCents / 100).toFixed(2)}`;
-    if (curr === 'EUR') return `€${(totalCents / 100).toFixed(2)}`;
+    if (curr === 'USD') return `${(totalCents / 100).toFixed(2)} USD`;
     if (curr === 'PLN') return `${(totalCents / 100).toFixed(2)} zł`;
     return '';
   }
@@ -176,7 +171,6 @@ function CreditsContent() {
           className="p-2 border rounded bg-white shadow-sm"
         >
           <option value="USD">{t.credits.usd}</option>
-          <option value="EUR">{t.credits.eur}</option>
           <option value="PLN">{t.credits.pln}</option>
         </select>
       </div>
@@ -243,7 +237,7 @@ function CreditsContent() {
           </div>
         </div>
 
-        <div className="text-center mb-8 bg-gray-50 p-6 rounded-lg relative overflow-hidden border border-gray-100">
+        <div className="text-center mb-8 bg-gray-50 p-6 rounded-lg relative overflow-hidden border border-gray-100" translate="no">
           {getDiscountPercentage(credits) > 0 && (
              <div className="absolute top-0 right-0 bg-green-500 text-white text-xs font-bold px-3 py-1 rounded-bl-lg">
                Rabat {getDiscountPercentage(credits)}%

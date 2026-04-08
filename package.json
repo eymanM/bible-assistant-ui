@@ -1,7 +1,7 @@
 {
   "name": "scripture-assistant",
   "private": true,
-  "version": "1.0.28",
+  "version": "1.0.29",
   "engines": {
     "node": ">=22.11.0"
   },
