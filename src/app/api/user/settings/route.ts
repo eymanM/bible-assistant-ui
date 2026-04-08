@@ -19,7 +19,11 @@ export async function POST(req: NextRequest) {
 
     const nextSettings: Record<string, unknown> = {};
     for (const key of SEARCH_SETTINGS_KEYS) {
-      if (typeof settings[key] === 'boolean') {
+      if (key === 'sourceOrder') {
+        if (Array.isArray(settings[key])) {
+          nextSettings[key] = settings[key];
+        }
+      } else if (typeof settings[key] === 'boolean') {
         nextSettings[key] = settings[key];
       }
     }
