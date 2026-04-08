@@ -15,7 +15,7 @@ interface SearchResultsProps {
   llmResponse: string;
   onVote?: (vote: 'up' | 'down') => void;
   voteStatus?: 'up' | 'down' | null;
-  settings?: Pick<SearchSettings, 'media'>;
+  settings?: SearchSettings;
 }
 
 const SearchResults: React.FC<SearchResultsProps> = ({ 
@@ -46,33 +46,57 @@ const SearchResults: React.FC<SearchResultsProps> = ({
 
   return (
     <div className="space-y-8 animate-in fade-in duration-500">
-      {/* Main Content Area */}
       <div className="grid grid-cols-1 gap-8">
-        <AISection
-          llmResponse={llmResponse}
-          onVote={onVote}
-          voteStatus={voteStatus}
-          onVoteClick={handleVote}
-          feedbackLabel={feedbackLabel}
-        />
+        {(() => {
+          const order = settings?.sourceOrder && settings.sourceOrder.length > 0 
+            ? settings.sourceOrder 
+            : ['insights', 'oldTestament', 'newTestament', 'commentary', 'media'];
+            
+          const renderedSections = new Set<string>();
 
-        <BibleResultsSection
-          results={bibleResults}
-          label={t.main.bibleResults || 'Możliwe wersety odpowiedzi'}
-        />
-
-        <CommentarySection
-          results={commentaryResults}
-          label={t.main.commentary}
-        />
+          return order.map((key) => {
+            if (key === 'insights') {
+              return (
+                <AISection
+                  key={key}
+                  llmResponse={llmResponse}
+                  onVote={onVote}
+                  voteStatus={voteStatus}
+                  onVoteClick={handleVote}
+                  feedbackLabel={feedbackLabel}
+                />
+              );
+            }
+            if ((key === 'oldTestament' || key === 'newTestament') && !renderedSections.has('bible')) {
+              renderedSections.add('bible');
+              return (
+                <BibleResultsSection
+                  key="bible"
+                  results={bibleResults}
+                  label={t.main.bibleResults || 'Możliwe wersety odpowiedzi'}
+                />
+              );
+            }
+            if (key === 'commentary') {
+              return (
+                <CommentarySection
+                  key={key}
+                  results={commentaryResults}
+                  label={t.main.commentary}
+                />
+              );
+            }
+            if (key === 'media' && settings?.media) {
+              return (
+                <div key={key} className={renderedSections.size > 0 ? "pt-2 border-t border-slate-100" : ""}>
+                   <RelatedMedia query={query} />
+                </div>
+              );
+            }
+            return null;
+          });
+        })()}
       </div>
-
-      {/* Related Media Section - Only if enabled in settings */}
-      {settings?.media && (
-         <div className="pt-8 border-t border-slate-100">
-             <RelatedMedia query={query} />
-         </div>
-      )}
     </div>
   );
 };

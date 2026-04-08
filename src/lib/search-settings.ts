@@ -4,6 +4,7 @@ export type SearchSettings = {
   commentary: boolean;
   insights: boolean;
   media: boolean;
+  sourceOrder?: string[];
 };
 
 export const DEFAULT_SEARCH_SETTINGS: SearchSettings = {
@@ -11,7 +12,8 @@ export const DEFAULT_SEARCH_SETTINGS: SearchSettings = {
   newTestament: true,
   commentary: false,
   insights: true,
-  media: false
+  media: false,
+  sourceOrder: ['insights', 'oldTestament', 'newTestament', 'commentary', 'media']
 };
 
 export const SEARCH_SETTINGS_KEYS = [
@@ -19,7 +21,8 @@ export const SEARCH_SETTINGS_KEYS = [
   'newTestament',
   'commentary',
   'insights',
-  'media'
+  'media',
+  'sourceOrder'
 ] as const;
 
 export function normalizeSearchSettings(
@@ -32,5 +35,10 @@ export function normalizeSearchSettings(
 }
 
 export function areSearchSettingsEqual(a: SearchSettings, b: SearchSettings): boolean {
-  return SEARCH_SETTINGS_KEYS.every(key => a[key] === b[key]);
+  return SEARCH_SETTINGS_KEYS.every(key => {
+    if (key === 'sourceOrder') {
+       return JSON.stringify(a[key]) === JSON.stringify(b[key]);
+    }
+    return a[key] === b[key];
+  });
 }
