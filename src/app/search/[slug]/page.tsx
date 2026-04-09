@@ -74,7 +74,7 @@ export default async function PublicSearchPage({ params }: Props) {
 
   return (
     <div className="min-h-screen bg-gray-50 flex flex-col items-center">
-      <header className="w-full glass px-4 md:px-8 py-4 mb-8">
+      <header className="w-full bg-white/90 backdrop-blur-md border-b border-slate-200/60 shadow-sm px-4 md:px-8 py-4 mb-8">
         <div className="max-w-[1600px] mx-auto flex items-center justify-between">
           <Link href="/" className="flex items-center gap-2 text-indigo-600 hover:text-indigo-700 transition-colors font-medium">
             <ArrowLeft className="w-5 h-5" />

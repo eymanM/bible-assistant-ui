@@ -56,7 +56,7 @@ const BibleApp: React.FC = () => {
       />
       
       <main id="main-content" role="main" className="flex-1 w-full max-w-[1600px] mx-auto min-w-0 flex flex-col">
-        <header className="sticky top-0 z-30 glass px-4 md:px-8 py-4 mb-8 flex items-center justify-between">
+        <header className="sticky top-0 z-30 bg-white/90 backdrop-blur-md px-4 md:px-8 py-4 mb-8 flex items-center justify-between border-b border-slate-200/60 shadow-sm">
           <div className="flex items-center gap-3">
             <button 
               onClick={() => setIsSidebarOpen(true)}
